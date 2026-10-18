@@ -1,0 +1,6 @@
+Django~=6.1.2
+PySide6~=6.12.0
+psycopg2-binary~=2.9.13
+mssql-python~=1.15.0
+python-dotenv~=1.2.4
+requests~=2.34.2

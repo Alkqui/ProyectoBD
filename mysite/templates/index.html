@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro de Idiomas - Gestión</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              bg: '#F6F7F4',
+              card: '#FFFFFF',
+              text: '#222B25',
+              subtext: '#667068',
+              border: '#DDE2DB',
+              accent: '#4F6F52',
+              hover: '#3A5A40',
+              light: '#E8EBE7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F6F7F4; color: #222B25; }
+    .clip-hex { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+    .honeycomb-wrapper { display: flex; flex-direction: column; align-items: center; gap: -14px; }
+    .honeycomb-row { display: flex; justify-content: center; gap: 18px; margin-bottom: -32px; }
+    @media (max-width: 640px) { .honeycomb-row { margin-bottom: -18px; gap: 10px; } }
+    .hex-btn { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .hex-btn:hover { transform: translateY(-8px) scale(1.04); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F6F7F4; }
+    ::-webkit-scrollbar-thumb { background: #DDE2DB; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4F6F52; }
+    
+    .crud-menu-btn {
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .crud-menu-btn.active {
+      background-color: #E8EBE7;
+      border-left-color: #4F6F52;
+      color: #222B25;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans selection:bg-sage-accent selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-sage-border bg-sage-card sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="showHoneycombView()">
+        <div class="w-10 h-10 rounded-xl bg-sage-accent flex items-center justify-center text-white shadow-md">
+          <i data-lucide="languages" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-sage-text flex items-center gap-1.5">
+            Centro de Idiomas
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sage-light border border-sage-border text-sage-text">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Sistema en Línea
+        </span>
+        <button onclick="showHoneycombView()" id="btn-back-home" class="hidden px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-accent border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i> Módulos
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-center relative">
+
+    <!-- VIEW 1: HONEYCOMB MENU -->
+    <section id="view-honeycomb" class="transition-all duration-500 ease-out flex flex-col items-center">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-sage-text tracking-tight">
+          Panel de Módulos
+        </h1>
+        <p class="mt-2 text-sm text-sage-subtext">
+          Selecciona una entidad para administrar sus registros y configuraciones.
+        </p>
+      </div>
+
+      <div id="honeycomb-container" class="honeycomb-wrapper my-4"></div>
+    </section>
+
+    <!-- VIEW 2: CRUD WORKSPACE -->
+    <section id="view-crud" class="hidden transition-all duration-300 flex-1 flex flex-col">
+      
+      <!-- Python Console Bar -->
+      <div class="bg-sage-text text-white text-xs font-mono p-2.5 rounded-t-xl flex items-center justify-between border-b border-sage-hover">
+        <div class="flex items-center gap-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+          <span>>>> <span id="python-console-cmd" class="text-emerald-300">Seleccionando módulo...</span></span>
+        </div>
+        <span class="text-[10px] text-sage-subtext bg-sage-hover px-2 py-0.5 rounded">Backend Django</span>
+      </div>
+
+      <div class="bg-sage-card border-x border-b border-sage-border rounded-b-xl shadow-sm flex flex-col md:flex-row overflow-hidden min-h-[500px]">
+        
+        <!-- Left Sidebar: Submenu -->
+        <aside class="w-full md:w-64 border-r border-sage-border bg-sage-bg/50 p-4 flex flex-col">
+          <div class="flex items-center gap-3 mb-6 px-2">
+            <div class="w-8 h-8 rounded-lg bg-sage-accent text-white flex items-center justify-center shadow-sm">
+              <i id="module-icon" data-lucide="database" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 id="module-title" class="text-lg font-bold text-sage-text capitalize leading-tight">Módulo</h2>
+              <p id="module-subtitle" class="text-[10px] text-sage-subtext font-mono">Tabla: -</p>
+            </div>
+          </div>
+
+          <p class="text-[10px] font-bold tracking-wider text-sage-subtext uppercase mb-2 px-2">Operaciones CRUD</p>
+          <nav class="flex flex-col gap-1">
+            <button onclick="setOperation('crear')" id="btn-op-crear" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> 1. Crear
+            </button>
+            <button onclick="setOperation('consultar')" id="btn-op-consultar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="search" class="w-4 h-4"></i> 2. Consultar
+            </button>
+            <button onclick="setOperation('actualizar')" id="btn-op-actualizar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="edit-3" class="w-4 h-4"></i> 3. Actualizar
+            </button>
+            <button onclick="setOperation('eliminar')" id="btn-op-eliminar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> 4. Eliminar
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Right Content Area -->
+        <div class="flex-1 p-4 md:p-6 bg-sage-card">
+          
+          <!-- PANEL 1: CREAR -->
+          <div id="panel-crear" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <div class="mb-5 flex justify-between items-center">
+              <div>
+                <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block">Registrar Nuevo</h3>
+                <p class="text-xs text-sage-subtext mt-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">crear(**datos)</code></p>
+              </div>
+            </div>
+            <form id="form-crear" onsubmit="handleCreate(event)" class="space-y-4">
+              <div id="fields-crear" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+              <div class="pt-4 border-t border-sage-border text-right">
+                <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                  <i data-lucide="save" class="w-4 h-4"></i> Guardar Registro
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PANEL 2: CONSULTAR -->
+          <div id="panel-consultar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4">Consultar Registros</h3>
+            
+            <!-- Herramientas de consulta -->
+            <div class="flex flex-wrap gap-4 mb-6 bg-sage-bg border border-sage-border p-4 rounded-xl">
+              <!-- Buscar por ID -->
+              <div class="flex-1 min-w-[200px]">
+                <label class="text-[10px] font-bold text-sage-subtext uppercase mb-1 block">Método: consultar_por_id(id)</label>
+                <div class="flex gap-2">
+                  <input type="number" id="input-search-id" placeholder="ID..." class="w-full bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+                  <button onclick="handleConsultarPorId()" class="px-3 py-1.5 bg-sage-card border border-sage-border hover:bg-sage-light text-sage-text rounded-md text-sm font-semibold transition">
+                    Buscar
+                  </button>
+                </div>
+                <div id="result-search-id" class="mt-2 hidden p-3 bg-white border border-sage-border rounded-lg shadow-sm text-xs"></div>
+              </div>
+
+              <!-- Siguiente ID (Solo Personal) -->
+              <div id="box-siguiente-id" class="hidden border-l border-sage-border pl-4">
+                <label class="text-[10px] font-bold text-sage-subtext uppercase mb-1 block">Método: obtener_siguiente_id()</label>
+                <button onclick="handleObtenerSiguienteId()" class="px-3 py-1.5 bg-sage-light hover:bg-sage-border text-sage-text border border-sage-border rounded-md text-sm font-semibold transition flex items-center gap-2">
+                  <i data-lucide="hash" class="w-4 h-4"></i> Calcular ID Libre
+                </button>
+                <p id="result-siguiente-id" class="text-xs font-mono font-bold text-sage-accent mt-2"></p>
+              </div>
+            </div>
+
+            <!-- Consultar Todos -->
+            <div class="flex justify-between items-end mb-2">
+              <div>
+                <label class="text-[10px] font-bold text-sage-subtext uppercase block">Método: consultar_todos()</label>
+                <div class="relative mt-1 w-64">
+                  <i data-lucide="search" class="w-4 h-4 text-sage-subtext absolute left-3 top-2"></i>
+                  <input type="text" id="table-search" onkeyup="renderTable()" placeholder="Filtrar resultados..." class="w-full bg-white border border-sage-border rounded-md pl-9 pr-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+                </div>
+              </div>
+              <span id="table-count" class="text-xs font-mono text-sage-subtext">0 regs</span>
+            </div>
+            
+            <div class="overflow-x-auto border border-sage-border rounded-lg shadow-sm">
+              <table class="w-full text-left text-sm text-sage-text divide-y divide-sage-border">
+                <thead class="bg-sage-light text-sage-subtext font-semibold uppercase tracking-wider text-[10px]" id="table-head"></thead>
+                <tbody class="divide-y divide-sage-border bg-white" id="table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PANEL 3: ACTUALIZAR -->
+          <div id="panel-actualizar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4">Actualizar Registro</h3>
+            
+            <!-- Selector de ID -->
+            <div class="mb-6 p-4 bg-sage-bg border border-sage-border rounded-xl">
+              <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Seleccionar ID para cargar datos:</label>
+              <select id="select-update-id" onchange="loadUpdateData()" class="w-full sm:w-64 bg-white border border-sage-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-sage-accent font-mono">
+                <option value="">-- Seleccionar --</option>
+              </select>
+            </div>
+
+            <!-- Pestañas internas de actualización -->
+            <div id="update-workspace" class="hidden">
+              <div class="flex border-b border-sage-border mb-4">
+                <button onclick="switchUpdateTab('completo')" id="btn-utab-completo" class="px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent">Campos Completos</button>
+                <button onclick="switchUpdateTab('estado')" id="btn-utab-estado" class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text">Cambiar Estado/Estatus</button>
+              </div>
+
+              <!-- Form Completo -->
+              <form id="form-update-completo" onsubmit="handleUpdate(event)" class="space-y-4">
+                <p class="text-xs text-sage-subtext mb-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">actualizar(id, **datos)</code></p>
+                <div id="fields-actualizar" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div class="pt-4 border-t border-sage-border text-right">
+                  <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="check" class="w-4 h-4"></i> Aplicar Cambios
+                  </button>
+                </div>
+              </form>
+
+              <!-- Form Estado Rápido -->
+              <form id="form-update-estado" onsubmit="handleChangeState(event)" class="hidden space-y-4">
+                <p id="lbl-metodo-estado" class="text-xs text-sage-subtext mb-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">cambiar_estado(id, nuevo)</code></p>
+                <div class="max-w-xs">
+                  <label class="text-xs font-semibold text-sage-text mb-1 block">Nuevo Valor:</label>
+                  <select id="select-fast-state" name="nuevo_estado" class="w-full bg-white border border-sage-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-sage-accent"></select>
+                </div>
+                <div class="pt-4 text-left">
+                  <button type="submit" class="px-4 py-2 bg-sage-text hover:bg-black text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Actualizar Estado
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- PANEL 4: ELIMINAR -->
+          <div id="panel-eliminar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-rose-500 pb-1 inline-block mb-4">Eliminar Registro</h3>
+            <p class="text-xs text-sage-subtext mb-4">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">eliminar(id)</code></p>
+            
+            <div class="p-6 bg-[#FFF1F1] border border-[#FAD2D2] rounded-xl flex flex-col sm:flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-bold text-[#C84B4B] mb-1">Precaución: Acción irreversible</h4>
+                <p class="text-xs text-rose-700/80 mb-3">Selecciona el ID del registro que deseas eliminar permanentemente de la base de datos.</p>
+                <div class="flex gap-2 max-w-sm">
+                  <select id="select-delete-id" class="flex-1 bg-white border border-rose-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-rose-400 font-mono text-rose-900">
+                    <option value="">-- Seleccionar ID --</option>
+                  </select>
+                  <button onclick="handleDelete()" class="px-4 py-2 bg-[#C84B4B] hover:bg-rose-700 text-white font-bold text-sm rounded-md shadow-sm transition">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-sage-border bg-sage-card py-4 text-center text-xs text-sage-subtext font-medium">
+    
+  </footer>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden transform transition-all duration-300 ease-out translate-y-4 opacity-0 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white">
+    <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-400"></i>
+    <span id="toast-msg" class="text-sm font-medium"></span>
+  </div>
+
+  <script>
+    const MODULE_SCHEMAS = {
+      aspirantes: {
+        name: "Aspirantes", class: "CrudAspirantes", table: "aspirantes", icon: "user-plus", primaryKey: "id_aspirante",
+        stateField: "activo",
+        fields: [
+          { name: "id_aspirante", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombres", label: "Nombres", type: "text", required: true },
+          { name: "apellido_paterno", label: "Ap. Paterno", type: "text", required: true },
+          { name: "apellido_materno", label: "Ap. Materno", type: "text", required: false },
+          { name: "curp", label: "CURP (18 car.)", type: "text", required: true },
+          { name: "fecha_nacimiento", label: "Fecha Nac.", type: "date", required: true },
+          { name: "correo_electronico", label: "Correo", type: "email", required: true },
+          { name: "telefono", label: "Teléfono (10 díg.)", type: "tel", required: true },
+          { name: "id_tipo_aspirante", label: "Tipo Aspirante (ID)", type: "number", required: true },
+          { name: "activo", label: "Activo", type: "select", options: ["Activo", "Inactivo"], required: true }
+        ]
+      },
+      docentes: {
+        name: "Docentes", class: "CrudDocentes", table: "docentes", icon: "graduation-cap", primaryKey: "id_docente",
+        stateField: "activo",
+        fields: [
+          { name: "id_docente", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombres", label: "Nombres", type: "text", required: true },
+          { name: "apellido_paterno", label: "Ap. Paterno", type: "text", required: true },
+          { name: "apellido_materno", label: "Ap. Materno", type: "text", required: false },
+          { name: "correo_electronico", label: "Correo", type: "email", required: true },
+          { name: "id_institucion", label: "Institución (ID)", type: "number", required: true },
+          { name: "id_idioma", label: "Idioma Princ. (ID)", type: "number", required: true },
+          { name: "activo", label: "Activo", type: "select", options: ["Activo", "Inactivo"], required: true }
+        ]
+      },
+      personal: {
+        name: "Personal", class: "CrudPersonal", table: "personal", icon: "briefcase", primaryKey: "id_personal",
+        stateField: "activo",
+        fields: [
+          { name: "id_personal", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombre", label: "Nombre", type: "text", required: true },
+          { name: "apellido_paterno", label: "Ap. Paterno", type: "text", required: true },
+          { name: "apellido_materno", label: "Ap. Materno", type: "text", required: false },
+          { name: "correo_institucional", label: "Correo Inst.", type: "email", required: true },
+          { name: "activo", label: "Activo", type: "select", options: ["Activo", "Inactivo"], required: true }
+        ]
+      },
+      cursos: {
+        name: "Cursos", class: "CrudCursos", table: "cursos", icon: "book-open", primaryKey: "id_curso",
+        stateField: "activo",
+        fields: [
+          { name: "id_curso", label: "ID", type: "number", required: true, isKey: true },
+          { name: "id_idioma", label: "Idioma (ID)", type: "number", required: true },
+          { name: "id_nivel", label: "Nivel (ID)", type: "number", required: true },
+          { name: "horas_totales", label: "Horas Totales", type: "number", required: true },
+          { name: "costo", label: "Costo ($)", type: "number", required: true },
+          { name: "activo", label: "Activo", type: "select", options: ["Activo", "Inactivo"], required: true }
+        ]
+      },
+      grupos: {
+        name: "Grupos", class: "CrudGrupos", table: "grupos", icon: "users", primaryKey: "id_grupo",
+        stateField: "id_estatus",
+        fields: [
+          { name: "id_grupo", label: "ID", type: "number", required: true, isKey: true },
+          { name: "codigo_grupo", label: "Código", type: "text", required: true },
+          { name: "id_curso", label: "Curso (ID)", type: "number", required: true },
+          { name: "id_periodo", label: "Periodo (ID)", type: "number", required: true },
+          { name: "id_docente", label: "Docente (ID)", type: "number", required: true },
+          { name: "id_horario", label: "Horario (ID)", type: "number", required: true },
+          { name: "id_aula", label: "Aula (ID)", type: "number", required: true },
+          { name: "cupo_minimo", label: "Cupo Mín", type: "number", required: true },
+          { name: "cupo_maximo", label: "Cupo Máx", type: "number", required: true },
+          { name: "id_estatus", label: "Estatus (ID)", type: "number", required: true }
+        ]
+      },
+      idiomas: {
+        name: "Idiomas", class: "CrudIdiomas", table: "idiomas", icon: "globe", primaryKey: "id_idioma",
+        stateField: "activo",
+        fields: [
+          { name: "id_idioma", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombre", label: "Nombre Idioma", type: "text", required: true },
+          { name: "activo", label: "Activo", type: "select", options: ["Activo", "Inactivo"], required: true }
+        ]
+      },
+      niveles: {
+        name: "Niveles", class: "CrudNiveles", table: "niveles", icon: "bar-chart-2", primaryKey: "id_nivel",
+        stateField: null,
+        fields: [
+          { name: "id_nivel", label: "ID", type: "number", required: true, isKey: true },
+          { name: "numero_nivel", label: "Núm. Nivel", type: "number", required: true },
+          { name: "equivalencia_mcer", label: "MCER", type: "select", options: ["A1", "A2", "B1", "B2", "C1"], required: true }
+        ]
+      },
+      tipos_aspirante: {
+        name: "Tipos Aspirante", class: "CrudTiposAspirante", table: "tipos_aspirante", icon: "tag", primaryKey: "id_tipo_aspirante",
+        stateField: null,
+        fields: [
+          { name: "id_tipo_aspirante", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombre_tipo", label: "Nombre Tipo", type: "text", required: true },
+          { name: "porcentaje_descuento", label: "Descuento (%)", type: "number", required: true }
+        ]
+      },
+      instituciones: {
+        name: "Instituciones", class: "CrudInstituciones", table: "instituciones", icon: "building-2", primaryKey: "id_institucion",
+        stateField: null,
+        fields: [
+          { name: "id_institucion", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombre_institucion", label: "Institución", type: "text", required: true }
+        ]
+      },
+      aulas: {
+        name: "Aulas", class: "CrudAulas", table: "aulas", icon: "door-open", primaryKey: "id_aula",
+        stateField: "activo",
+        fields: [
+          { name: "id_aula", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombre_aula", label: "Clave Aula", type: "text", required: true },
+          { name: "edificio", label: "Edificio", type: "text", required: true },
+          { name: "capacidad", label: "Capacidad", type: "number", required: true },
+          { name: "activo", label: "Activo", type: "select", options: ["Activo", "Inactivo"], required: true }
+        ]
+      },
+      periodos: {
+        name: "Periodos", class: "CrudPeriodos", table: "periodos", icon: "calendar", primaryKey: "id_periodo",
+        stateField: "activo",
+        fields: [
+          { name: "id_periodo", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombre_periodo", label: "Periodo", type: "text", required: true },
+          { name: "fecha_inicio", label: "Fecha Inicio", type: "date", required: true },
+          { name: "fecha_fin", label: "Fecha Fin", type: "date", required: true },
+          { name: "activo", label: "Activo", type: "select", options: ["Activo", "Inactivo"], required: true }
+        ]
+      },
+      horarios: {
+        name: "Horarios", class: "CrudHorarios", table: "horarios", icon: "clock", primaryKey: "id_horario",
+        stateField: null,
+        fields: [
+          { name: "id_horario", label: "ID", type: "number", required: true, isKey: true },
+          { name: "dias", label: "Días", type: "text", required: true },
+          { name: "hora_inicio", label: "Hora Inicio", type: "time", required: true },
+          { name: "hora_fin", label: "Hora Fin", type: "time", required: true }
+        ]
+      },
+      estatus_grupo: {
+        name: "Estatus Grupo", class: "CrudEstatusGrupo", table: "estatus_grupo", icon: "check-square", primaryKey: "id_estatus",
+        stateField: null,
+        fields: [
+          { name: "id_estatus", label: "ID", type: "number", required: true, isKey: true },
+          { name: "tipo_estatus", label: "Tipo Estatus", type: "text", required: true }
+        ]
+      },
+      roles: {
+        name: "Roles", class: "CrudRoles", table: "roles", icon: "shield", primaryKey: "id_rol",
+        stateField: null,
+        fields: [
+          { name: "id_rol", label: "ID", type: "number", required: true, isKey: true },
+          { name: "nombre_rol", label: "Nombre Rol", type: "text", required: true },
+          { name: "descripcion", label: "Descripción", type: "text", required: false }
+        ]
+      },
+      usuarios: {
+        name: "Usuarios", class: "CrudUsuarios", table: "usuarios", icon: "key", primaryKey: "id_usuario",
+        stateField: "activo",
+        fields: [
+          { name: "id_usuario", label: "ID", type: "number", required: true, isKey: true },
+          { name: "id_personal", label: "Personal (ID)", type: "number", required: true },
+          { name: "id_rol", label: "Rol (ID)", type: "number", required: true },
+          { name: "nombre_usuario", label: "Usuario", type: "text", required: true },
+          { name: "contrasena_hash", label: "Contraseña / Hash", type: "text", required: true },
+          { name: "activo", label: "Activo", type: "select", options: ["Activo", "Inactivo"], required: true }
+        ]
+      }
+    };
+
+    // Caché local; los datos reales vienen de Django (/api/...)
+    let db = Object.fromEntries(Object.keys(MODULE_SCHEMAS).map(k => [k, []]));
+
+    function renderHoneycomb() {
+      const container = document.getElementById('honeycomb-container');
+      if (!container) return;
+      const keys = Object.keys(MODULE_SCHEMAS);
+      const pattern = [4, 3, 4, 4];
+      let idx = 0;
+      let html = '';
+      for (const count of pattern) {
+        const rowKeys = keys.slice(idx, idx + count);
+        if (!rowKeys.length) break;
+        idx += count;
+        html += `<div class="honeycomb-row">`;
+        for (const k of rowKeys) {
+          const s = MODULE_SCHEMAS[k];
+          html += `
+          <div onclick="selectModule('${k}')" class="hex-btn cursor-pointer group">
+            <div class="w-36 h-40 sm:w-44 sm:h-48 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-11 h-11 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-2 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="${s.icon}" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text">${s.name}</h3>
+                <span class="text-[10px] text-sage-subtext mt-0.5">crud_${s.table}</span>
+                <span class="mt-2 text-[10px] px-2 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-accent font-mono font-semibold" id="badge-count-${k}">0 reg</span>
+              </div>
+            </div>
+          </div>`;
+        }
+        html += `</div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    const CSRF_TOKEN = "{{ csrf_token }}";
+
+    async function api(url, datos) {
+      const opts = datos === undefined ? {} : {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF_TOKEN },
+        body: JSON.stringify(datos)
+      };
+      try {
+        const r = await fetch(url, opts);
+        return await r.json();
+      } catch (e) {
+        return { estado: false, mensaje: "No se pudo comunicar con el servidor" };
+      }
+    }
+
+    function msgError(res) {
+      const txt = [res.mensaje, res.error].filter(Boolean).join(': ') || "Error desconocido";
+      return txt.split('\n')[0];
+    }
+
+    async function cargarModulo(m) {
+      const res = await api(`/api/${m}/`);
+      if (res.estado) db[m] = res.registros || [];
+      else showToast(msgError(res), 'error');
+    }
+
+    async function cargarTodos() {
+      await Promise.all(Object.keys(MODULE_SCHEMAS).map(cargarModulo));
+    }
+
+    let currentModule = null;
+
+    function updateBadges() {
+      for (const mod in db) {
+        const badge = document.getElementById(`badge-count-${mod}`);
+        if (badge) badge.innerText = `${db[mod].length} reg`;
+      }
+    }
+
+    function showHoneycombView() {
+      document.getElementById('view-honeycomb').classList.remove('hidden');
+      document.getElementById('view-crud').classList.add('hidden');
+      document.getElementById('btn-back-home').classList.add('hidden');
+      currentModule = null;
+      cargarTodos().then(updateBadges);
+      lucide.createIcons();
+    }
+
+    function selectModule(moduleKey) {
+      currentModule = moduleKey;
+      const schema = MODULE_SCHEMAS[moduleKey];
+      
+      document.getElementById('module-title').innerText = schema.name;
+      document.getElementById('module-subtitle').innerText = `Tabla: ${schema.table}`;
+      document.getElementById('module-icon').setAttribute('data-lucide', schema.icon);
+
+      document.getElementById('view-honeycomb').classList.add('hidden');
+      document.getElementById('view-crud').classList.remove('hidden');
+      document.getElementById('btn-back-home').classList.remove('hidden');
+
+      setOperation('consultar');
+      lucide.createIcons();
+    }
+
+    function setConsoleCommand(cmd) {
+      document.getElementById('python-console-cmd').innerText = cmd;
+    }
+
+    async function setOperation(op) {
+      ['crear', 'consultar', 'actualizar', 'eliminar'].forEach(o => {
+        document.getElementById(`btn-op-${o}`).classList.remove('active');
+        document.getElementById(`panel-${o}`).classList.add('hidden');
+      });
+      document.getElementById(`btn-op-${op}`).classList.add('active');
+      document.getElementById(`panel-${op}`).classList.remove('hidden');
+
+      const schema = MODULE_SCHEMAS[currentModule];
+      if (op !== 'crear') await cargarModulo(currentModule);
+
+      if (op === 'crear') {
+        setConsoleCommand(`${schema.class}.crear(**datos)`);
+        buildCreateForm();
+      } else if (op === 'consultar') {
+        setConsoleCommand(`${schema.class}.consultar_todos()`);
+        
+        const boxSigId = document.getElementById('box-siguiente-id');
+        if (currentModule === 'personal') {
+          boxSigId.classList.remove('hidden');
+          document.getElementById('result-siguiente-id').innerText = "";
+        } else {
+          boxSigId.classList.add('hidden');
+        }
+        
+        document.getElementById('input-search-id').value = '';
+        document.getElementById('result-search-id').classList.add('hidden');
+        renderTable();
+      } else if (op === 'actualizar') {
+        setConsoleCommand(`${schema.class}.actualizar(id, **datos)`);
+        populateIdSelectors('select-update-id');
+        document.getElementById('update-workspace').classList.add('hidden');
+        document.getElementById('select-update-id').value = '';
+        switchUpdateTab('completo');
+        
+        // Setup text for specific method
+        const lbl = document.getElementById('lbl-metodo-estado');
+        if(currentModule === 'grupos') {
+          lbl.innerHTML = `Invoca: <code class="font-mono bg-sage-bg px-1 rounded">cambiar_estatus(id_grupo, nuevo)</code>`;
+        } else {
+          lbl.innerHTML = `Invoca: <code class="font-mono bg-sage-bg px-1 rounded">cambiar_estado(id, nuevo)</code>`;
+        }
+      } else if (op === 'eliminar') {
+        setConsoleCommand(`${schema.class}.eliminar(id)`);
+        populateIdSelectors('select-delete-id');
+      }
+    }
+
+    // CREATE
+    function buildCreateForm() {
+      const schema = MODULE_SCHEMAS[currentModule];
+      const container = document.getElementById('fields-crear');
+      let html = '';
+      schema.fields.filter(f => !f.isKey).forEach(f => {
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label} ${f.required?'<span class="text-rose-500">*</span>':''}</label>`;
+        if (f.type === 'select') {
+          html += `<select name="${f.name}" ${f.required?'required':''} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+            ${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>`;
+        } else {
+          html += `<input type="${f.type}" ${f.type==='number'?'step="any"':''} name="${f.name}" ${f.required?'required':''} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    async function handleCreate(e) {
+      e.preventDefault();
+      const form = e.target;
+      const schema = MODULE_SCHEMAS[currentModule];
+      const formData = new FormData(form);
+      const datos = {};
+      schema.fields.filter(f => !f.isKey).forEach(f => {
+        let val = formData.get(f.name);
+        if (f.type === 'number') val = Number(val);
+        datos[f.name] = val;
+      });
+      const res = await api(`/api/${currentModule}/crear/`, datos);
+      if (!res.estado) { showToast(msgError(res), 'error'); return; }
+      showToast(res.mensaje || `Registro creado en ${schema.table}`);
+      form.reset();
+      await setOperation('consultar');
+    }
+
+    // READ
+    function renderTable() {
+      const schema = MODULE_SCHEMAS[currentModule];
+      const data = db[currentModule];
+      const search = (document.getElementById('table-search').value || '').toLowerCase();
+      
+      let head = '<tr>';
+      schema.fields.forEach(f => head += `<th class="px-3 py-2">${f.label}</th>`);
+      head += '</tr>';
+      document.getElementById('table-head').innerHTML = head;
+
+      const filtered = data.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(search)));
+      document.getElementById('table-count').innerText = `${filtered.length} regs`;
+
+      if (filtered.length === 0) {
+        document.getElementById('table-body').innerHTML = `<tr><td colspan="${schema.fields.length}" class="px-3 py-6 text-center text-xs text-sage-subtext">No se encontraron registros.</td></tr>`;
+        return;
+      }
+
+      let body = '';
+      filtered.forEach(item => {
+        body += `<tr class="hover:bg-sage-bg/50 transition">`;
+        schema.fields.forEach(f => {
+          let v = item[f.name] ?? '';
+          if (f.name === schema.stateField) {
+            body += `<td class="px-3 py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sage-light text-sage-text border border-sage-border">${v}</span></td>`;
+          } else if(f.isKey) {
+            body += `<td class="px-3 py-2 font-mono font-bold text-sage-accent">#${v}</td>`;
+          } else {
+            body += `<td class="px-3 py-2">${v}</td>`;
+          }
+        });
+        body += `</tr>`;
+      });
+      document.getElementById('table-body').innerHTML = body;
+    }
+
+    async function handleConsultarPorId() {
+      const idVal = document.getElementById('input-search-id').value;
+      if (!idVal) return;
+      const schema = MODULE_SCHEMAS[currentModule];
+      setConsoleCommand(`${schema.class}.consultar_por_id(${idVal})`);
+
+      const res = await api(`/api/${currentModule}/${idVal}/`);
+      const record = (res.estado && res.registros) ? res.registros[0] : null;
+      const resBox = document.getElementById('result-search-id');
+      resBox.classList.remove('hidden');
+
+      if (!record) {
+        resBox.innerHTML = `<span class="text-rose-500 font-mono">None</span> (No encontrado)`;
+      } else {
+        let txt = `<div class="grid grid-cols-2 gap-2 font-mono text-[10px]">`;
+        for (let k in record) txt += `<div><span class="text-sage-subtext">${k}:</span> <span class="font-bold text-sage-text">${record[k] ?? ''}</span></div>`;
+        txt += `</div>`;
+        resBox.innerHTML = txt;
+      }
+    }
+
+    async function handleObtenerSiguienteId() {
+      setConsoleCommand(`CrudPersonal.obtener_siguiente_id()`);
+      const res = await api('/api/personal/siguiente-id/');
+      if (!res.estado) { showToast(msgError(res), 'error'); return; }
+      document.getElementById('result-siguiente-id').innerText = `ID Retornado: ${res.siguiente_id}`;
+      showToast(`Siguiente ID calculado: ${res.siguiente_id}`);
+    }
+
+    // UPDATE
+    function populateIdSelectors(elemId) {
+      const sel = document.getElementById(elemId);
+      const pk = MODULE_SCHEMAS[currentModule].primaryKey;
+      let html = `<option value="">-- Seleccionar ID --</option>`;
+      db[currentModule].forEach(r => {
+        html += `<option value="${r[pk]}">#${r[pk]}</option>`;
+      });
+      sel.innerHTML = html;
+    }
+
+    function loadUpdateData() {
+      const id = document.getElementById('select-update-id').value;
+      const ws = document.getElementById('update-workspace');
+      if (!id) { ws.classList.add('hidden'); return; }
+      
+      ws.classList.remove('hidden');
+      const schema = MODULE_SCHEMAS[currentModule];
+      const record = db[currentModule].find(r => r[schema.primaryKey] == id);
+      
+      // Fields Full
+      const container = document.getElementById('fields-actualizar');
+      let html = '';
+      schema.fields.forEach(f => {
+        const v = record[f.name] ?? '';
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label}</label>`;
+        if (f.type === 'select') {
+          html += `<select name="${f.name}" class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent">
+            ${f.options.map(o => `<option value="${o}" ${o==v?'selected':''}>${o}</option>`).join('')}
+          </select>`;
+        } else {
+          html += `<input type="${f.type}" name="${f.name}" value="${v}" ${f.isKey?'readonly class="bg-sage-bg opacity-70"':'class="bg-white"'} border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent">`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+
+      // Fields Fast State
+      const sf = schema.fields.find(f => f.name === schema.stateField);
+      const stBtn = document.getElementById('btn-utab-estado');
+      const stSel = document.getElementById('select-fast-state');
+      if (!sf) {
+        stBtn.classList.add('hidden');
+      } else {
+        stBtn.classList.remove('hidden');
+        if (sf.type === 'select') {
+          stSel.innerHTML = sf.options.map(o => `<option value="${o}">${o}</option>`).join('');
+        } else {
+          stSel.innerHTML = `<option value="1">1 - Activo</option><option value="2">2 - En espera</option><option value="3">3 - Cerrado</option><option value="4">4 - Cancelado</option><option value="5">5 - Finalizado</option>`;
+        }
+      }
+    }
+
+    function switchUpdateTab(tab) {
+      if(tab==='completo') {
+        document.getElementById('btn-utab-completo').className = "px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent";
+        document.getElementById('btn-utab-estado').className = "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text";
+        document.getElementById('form-update-completo').classList.remove('hidden');
+        document.getElementById('form-update-estado').classList.add('hidden');
+      } else {
+        document.getElementById('btn-utab-estado').className = "px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent";
+        document.getElementById('btn-utab-completo').className = "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text";
+        document.getElementById('form-update-estado').classList.remove('hidden');
+        document.getElementById('form-update-completo').classList.add('hidden');
+        
+        const id = document.getElementById('select-update-id').value;
+        const schema = MODULE_SCHEMAS[currentModule];
+        if(currentModule==='grupos') setConsoleCommand(`${schema.class}.cambiar_estatus(${id}, nuevo)`);
+        else setConsoleCommand(`${schema.class}.cambiar_estado(${id}, nuevo)`);
+      }
+    }
+
+    async function handleUpdate(e) {
+      e.preventDefault();
+      const id = document.getElementById('select-update-id').value;
+      const schema = MODULE_SCHEMAS[currentModule];
+      const formData = new FormData(e.target);
+      const datos = {};
+      schema.fields.filter(f => !f.isKey).forEach(f => {
+        let val = formData.get(f.name);
+        if (f.type === 'number') val = Number(val);
+        datos[f.name] = val;
+      });
+      const res = await api(`/api/${currentModule}/${id}/actualizar/`, datos);
+      if (!res.estado) { showToast(msgError(res), 'error'); return; }
+      showToast(res.mensaje || `Registro #${id} actualizado`);
+      await setOperation('consultar');
+    }
+
+    async function handleChangeState(e) {
+      e.preventDefault();
+      const id = document.getElementById('select-update-id').value;
+      const nv = document.getElementById('select-fast-state').value;
+      const res = await api(`/api/${currentModule}/${id}/estado/`, { nuevo: nv });
+      if (!res.estado) { showToast(msgError(res), 'error'); return; }
+      showToast(res.mensaje || `Estado de #${id} cambiado a ${nv}`);
+      await setOperation('consultar');
+    }
+
+    // DELETE
+    async function handleDelete() {
+      const id = document.getElementById('select-delete-id').value;
+      if (!id) return;
+      const res = await api(`/api/${currentModule}/${id}/eliminar/`, {});
+      if (!res.estado) { showToast(msgError(res), 'error'); return; }
+      showToast(res.mensaje || `Registro #${id} dado de baja`, 'error');
+      await setOperation('consultar');
+    }
+
+    let tOut;
+    function showToast(msg, type='success') {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      
+      if(type==='success'){
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'check-circle');
+        document.getElementById('toast-icon').classList.replace('text-rose-400', 'text-emerald-400');
+      } else {
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-rose-900 border-rose-800 text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'alert-circle');
+        document.getElementById('toast-icon').classList.replace('text-emerald-400', 'text-rose-400');
+      }
+      lucide.createIcons();
+      clearTimeout(tOut);
+      tOut = setTimeout(()=> {
+        el.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(()=> el.classList.add('hidden'), 300);
+      }, 3000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderHoneycomb();
+      cargarTodos().then(updateBadges);
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

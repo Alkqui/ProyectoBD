@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coordinación Académica - Programación</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              bg: '#F6F7F4',
+              card: '#FFFFFF',
+              text: '#222B25',
+              subtext: '#667068',
+              border: '#DDE2DB',
+              accent: '#4F6F52',
+              hover: '#3A5A40',
+              light: '#E8EBE7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F6F7F4; color: #222B25; }
+    .clip-hex { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+    .honeycomb-wrapper { display: flex; flex-direction: column; align-items: center; gap: -14px; }
+    .honeycomb-row { display: flex; justify-content: center; gap: 16px; margin-bottom: -32px; }
+    @media (max-width: 768px) { .honeycomb-row { margin-bottom: -18px; gap: 8px; flex-wrap: wrap; } }
+    .hex-btn { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .hex-btn:hover { transform: translateY(-8px) scale(1.04); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F6F7F4; }
+    ::-webkit-scrollbar-thumb { background: #DDE2DB; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4F6F52; }
+
+    .crud-menu-btn { transition: all 0.2s; border-left: 3px solid transparent; }
+    .crud-menu-btn.active { background-color: #E8EBE7; border-left-color: #4F6F52; color: #222B25; font-weight: 600; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans selection:bg-sage-accent selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-sage-border bg-sage-card sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="showHoneycombView()">
+        <div class="w-10 h-10 rounded-xl bg-sage-accent flex items-center justify-center text-white shadow-md">
+          <i data-lucide="languages" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-sage-text flex items-center gap-1.5">
+            Centro de Idiomas
+          </span>
+          <p class="text-[10px] text-sage-subtext uppercase tracking-wider font-bold">Módulo de Coordinación Académica</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sage-light border border-sage-border text-sage-text">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Sistema en Línea
+        </span>
+        <a href="/" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-text border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="home" class="w-4 h-4 text-sage-accent"></i> Menú Principal
+        </a>
+        <button onclick="showHoneycombView()" id="btn-back-home" class="hidden px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-accent border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i> Módulos
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-center relative">
+
+    <!-- VIEW 1: HONEYCOMB MENU -->
+    <section id="view-honeycomb" class="transition-all duration-500 ease-out flex flex-col items-center">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-sage-text tracking-tight">
+          Programación de Grupos
+        </h1>
+        <p class="mt-2 text-sm text-sage-subtext">
+          Planificación académica, asignación de docentes, aulas, horarios y lenguas impartidas.
+        </p>
+      </div>
+
+      <div class="honeycomb-wrapper my-4">
+
+        <!-- Row 1: 2 items centered -->
+        <div class="honeycomb-row">
+          <div onclick="selectModule('grupos')" class="hex-btn cursor-pointer group">
+            <div class="w-40 h-44 sm:w-48 sm:h-52 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text">Gestión de Grupos</h3>
+                <span class="mt-2 text-[10px] px-2.5 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-accent font-mono font-semibold" id="badge-grupos">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div onclick="selectModule('idioma_docente')" class="hex-btn cursor-pointer group">
+            <div class="w-40 h-44 sm:w-48 sm:h-52 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="book-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text">Habilitación de Idiomas</h3>
+                <span class="mt-2 text-[10px] px-2.5 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-accent font-mono font-semibold" id="badge-idioma_docente">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 2: CRUD WORKSPACE -->
+    <section id="view-crud" class="hidden transition-all duration-300 flex-1 flex flex-col">
+
+      <!-- Python Console Bar -->
+      <div class="bg-sage-text text-white text-xs font-mono p-2.5 rounded-t-xl flex items-center justify-between border-b border-sage-hover">
+        <div class="flex items-center gap-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+          <span>>>> <span id="python-console-cmd" class="text-emerald-300">Seleccionando submódulo...</span></span>
+        </div>
+        <span id="backend-status-badge" class="text-[10px] text-emerald-300 bg-sage-hover px-2 py-0.5 rounded">Conectado a BD</span>
+      </div>
+
+      <div class="bg-sage-card border-x border-b border-sage-border rounded-b-xl shadow-sm flex flex-col md:flex-row overflow-hidden min-h-[600px]">
+
+        <!-- Left Sidebar: Submenu -->
+        <aside class="w-full md:w-64 border-r border-sage-border bg-sage-bg/50 p-4 flex flex-col">
+          <div class="flex items-center gap-3 mb-6 px-2">
+            <div class="w-8 h-8 rounded-lg bg-sage-accent text-white flex items-center justify-center shadow-sm">
+              <i id="module-icon" data-lucide="database" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 id="module-title" class="text-lg font-bold text-sage-text capitalize leading-tight">Módulo</h2>
+              <p id="module-subtitle" class="text-[10px] text-sage-subtext font-mono">Tabla: -</p>
+            </div>
+          </div>
+
+          <p class="text-[10px] font-bold tracking-wider text-sage-subtext uppercase mb-2 px-2">Operaciones CRUD</p>
+          <nav class="flex flex-col gap-1">
+            <button onclick="setOperation('crear')" id="btn-op-crear" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> 1. Crear
+            </button>
+            <button onclick="setOperation('consultar')" id="btn-op-consultar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="search" class="w-4 h-4"></i> 2. Consultar
+            </button>
+            <button onclick="setOperation('actualizar')" id="btn-op-actualizar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="edit-3" class="w-4 h-4"></i> 3. Actualizar
+            </button>
+            <button onclick="setOperation('eliminar')" id="btn-op-eliminar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> 4. Eliminar
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Right Content Area -->
+        <div class="flex-1 p-4 md:p-6 bg-sage-card">
+
+          <!-- PANEL 1: CREAR -->
+          <div id="panel-crear" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <div class="mb-5 flex justify-between items-center">
+              <div>
+                <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block">Registrar Nuevo</h3>
+                <p class="text-xs text-sage-subtext mt-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">crear(**datos)</code> con validaciones de negocio.</p>
+              </div>
+            </div>
+            <form id="form-crear" onsubmit="handleCreate(event)" class="space-y-4">
+              <div id="fields-crear" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+              <div class="pt-4 border-t border-sage-border text-right">
+                <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                  <i data-lucide="save" class="w-4 h-4"></i> Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PANEL 2: CONSULTAR -->
+          <div id="panel-consultar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4">Listado y Consulta</h3>
+
+            <div class="flex justify-between items-end mb-4">
+              <div>
+                <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Búsqueda / Filtro General:</label>
+                <div class="relative w-72">
+                  <i data-lucide="search" class="w-4 h-4 text-sage-subtext absolute left-3 top-2"></i>
+                  <input type="text" id="table-search" onkeyup="renderTable()" placeholder="Buscar por código, docente, aula, idioma..." class="w-full bg-white border border-sage-border rounded-md pl-9 pr-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+                </div>
+              </div>
+              <span id="table-count" class="text-xs font-mono text-sage-subtext">0 regs</span>
+            </div>
+
+            <div class="overflow-x-auto border border-sage-border rounded-lg shadow-sm">
+              <table class="w-full text-left text-sm text-sage-text divide-y divide-sage-border">
+                <thead class="bg-sage-light text-sage-subtext font-semibold uppercase tracking-wider text-[10px]" id="table-head"></thead>
+                <tbody class="divide-y divide-sage-border bg-white" id="table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PANEL 3: ACTUALIZAR -->
+          <div id="panel-actualizar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4">Actualizar Registro</h3>
+
+            <div class="mb-6 p-4 bg-sage-bg border border-sage-border rounded-xl">
+              <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Seleccionar Registro a Editar:</label>
+              <select id="select-update-id" onchange="loadUpdateData()" class="w-full sm:w-64 bg-white border border-sage-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-sage-accent font-mono">
+                <option value="">-- Seleccionar --</option>
+              </select>
+            </div>
+
+            <div id="update-workspace" class="hidden">
+              <div class="flex border-b border-sage-border mb-4">
+                <button onclick="switchUpdateTab('completo')" id="btn-utab-completo" class="px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent">Edición Completa</button>
+                <button onclick="switchUpdateTab('estado')" id="btn-utab-estado" class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text">Cambio de Estatus/Principal</button>
+              </div>
+
+              <form id="form-update-completo" onsubmit="handleUpdate(event)" class="space-y-4">
+                <p class="text-xs text-sage-subtext mb-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">actualizar(id, **datos)</code></p>
+                <div id="fields-actualizar" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div class="pt-4 border-t border-sage-border text-right">
+                  <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="check" class="w-4 h-4"></i> Guardar Cambios
+                  </button>
+                </div>
+              </form>
+
+              <form id="form-update-estado" onsubmit="handleChangeState(event)" class="hidden space-y-4">
+                <p id="lbl-metodo-estado" class="text-xs text-sage-subtext mb-2">Invoca método rápido</p>
+                <div class="max-w-xs">
+                  <label class="text-xs font-semibold text-sage-text mb-1 block" id="lbl-fast-state">Nuevo Valor:</label>
+                  <select id="select-fast-state" name="nuevo_estado" class="w-full bg-white border border-sage-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-sage-accent">
+                    <!-- Options populated dynamically -->
+                  </select>
+                </div>
+                <div class="pt-4 text-left">
+                  <button type="submit" class="px-4 py-2 bg-sage-text hover:bg-black text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Confirmar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- PANEL 4: ELIMINAR -->
+          <div id="panel-eliminar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-rose-500 pb-1 inline-block mb-4">Eliminar Registro</h3>
+            <p class="text-xs text-sage-subtext mb-4">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">eliminar(id)</code></p>
+
+            <div class="p-6 bg-[#FFF1F1] border border-[#FAD2D2] rounded-xl flex flex-col sm:flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-bold text-[#C84B4B] mb-1">Precaución: Acción destructiva</h4>
+                <p class="text-xs text-rose-700/80 mb-3">En el caso de los grupos, verifica que no tengan alumnos inscritos antes de eliminarlos. Si el periodo ya inició, prefiere cambiar su estatus a Cancelado.</p>
+                <div class="flex gap-2 max-w-sm">
+                  <select id="select-delete-id" class="flex-1 bg-white border border-rose-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-rose-400 font-mono text-rose-900">
+                    <option value="">-- Seleccionar ID --</option>
+                  </select>
+                  <button onclick="handleDelete()" class="px-4 py-2 bg-[#C84B4B] hover:bg-rose-700 text-white font-bold text-sm rounded-md shadow-sm transition">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden transform transition-all duration-300 ease-out translate-y-4 opacity-0 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white">
+    <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-400"></i>
+    <span id="toast-msg" class="text-sm font-medium"></span>
+  </div>
+
+  <script>
+    // Referencias para validaciones y llenado desde Base de Datos
+    const catalogosBD = {
+      aulas: [],
+      estatus: [],
+      docentes: [],
+      cursos: [],
+      periodos: [],
+      horarios: [],
+      idiomas: []
+    };
+
+    const mapasBD = {
+      cursos: {},
+      periodos: {},
+      docentes: {},
+      horarios: {},
+      aulas: {},
+      estatus: {},
+      idiomas: {}
+    };
+
+    const MODULE_SCHEMAS = {
+      grupos: {
+        name: "Gestión de Grupos", class: "CrudGrupos", table: "grupos", icon: "users", primaryKey: "id_grupo", stateField: "id_estatus", hasBackend: true,
+        fields: [
+          { name: "id_grupo", label: "ID Grupo", type: "number", required: false, isKey: true, autoId: true },
+          { name: "codigo_grupo", label: "Código de Grupo", type: "text", required: true, placeholder: "Ej. ING-A1-2026B-01" },
+          { name: "id_curso", label: "Curso (Determina Idioma)", type: "select", options: catalogosBD.cursos, required: true },
+          { name: "id_periodo", label: "Periodo", type: "select", options: catalogosBD.periodos, required: true },
+          { name: "id_docente", label: "Docente", type: "select", options: catalogosBD.docentes, required: true },
+          { name: "id_horario", label: "Horario", type: "select", options: catalogosBD.horarios, required: true },
+          { name: "id_aula", label: "Aula", type: "select", options: [], required: true },
+          { name: "cupo_minimo", label: "Cupo Mínimo", type: "number", required: true, min: 1 },
+          { name: "cupo_maximo", label: "Cupo Máximo", type: "number", required: true, min: 1 },
+          { name: "id_estatus", label: "Estatus", type: "select", options: catalogosBD.estatus, required: true }
+        ]
+      },
+      idioma_docente: {
+        name: "Idiomas por Docente", class: "CrudIdiomaDocente", table: "idioma_docente", icon: "book-check", primaryKey: "id_habilitacion", stateField: "es_principal", hasBackend: false,
+        fields: [
+          { name: "id_habilitacion", label: "ID Asignación", type: "number", required: true, isKey: true },
+          { name: "id_docente", label: "Docente", type: "select", options: catalogosBD.docentes, required: true },
+          { name: "id_idioma", label: "Idioma Certificado", type: "select", options: catalogosBD.idiomas, required: true },
+          { name: "es_principal", label: "¿Es Idioma Principal?", type: "select", options: ["Sí", "No"], required: true }
+        ]
+      }
+    };
+
+    // Estado de datos (grupos desde BD, idioma_docente en memoria a la espera de CrudIdiomaDocente)
+    let db = {
+      grupos: [],
+      idioma_docente: [
+        { id_habilitacion: 1, id_docente: "1 - Laura Gómez", id_idioma: "1 - Inglés", es_principal: "Sí" },
+        { id_habilitacion: 2, id_docente: "2 - Carlos Ruiz", id_idioma: "2 - Francés", es_principal: "Sí" }
+      ]
+    };
+
+    let currentModule = null;
+
+    async function apiCall(mod, accion, pk = null, body = null) {
+      let url = `/api/${mod}/`;
+      if (accion === 'listar') url += '';
+      else if (accion === 'crear') url += 'crear/';
+      else if (accion === 'detalle') url += `${pk}/`;
+      else if (accion === 'actualizar') url += `${pk}/actualizar/`;
+      else if (accion === 'estado') url += `${pk}/estado/`;
+      else if (accion === 'eliminar') url += `${pk}/eliminar/`;
+
+      const opts = { headers: { 'Content-Type': 'application/json' } };
+      if (body !== null) {
+        opts.method = 'POST';
+        opts.body = JSON.stringify(body);
+      }
+      const resp = await fetch(url, opts);
+      return await resp.json();
+    }
+
+    function formatearGrupoBD(g) {
+      return {
+        ...g,
+        id_curso: mapasBD.cursos[g.id_curso] || `${g.id_curso} - ${g.idioma || 'Curso'}`,
+        id_periodo: mapasBD.periodos[g.id_periodo] || `${g.id_periodo} - ${g.periodo || 'Periodo'}`,
+        id_docente: mapasBD.docentes[g.id_docente] || `${g.id_docente} - ${g.docente || 'Docente'}`,
+        id_horario: mapasBD.horarios[g.id_horario] || `${g.id_horario} - ${g.horario || 'Horario'}`,
+        id_aula: mapasBD.aulas[g.id_aula] || `${g.id_aula} - ${g.aula || 'Aula'}`,
+        id_estatus: mapasBD.estatus[g.id_estatus] || `${g.id_estatus} - ${g.estatus || 'Estatus'}`
+      };
+    }
+
+    async function loadGruposFromBackend() {
+      try {
+        const res = await apiCall('grupos', 'listar');
+        if (res && res.estado && Array.isArray(res.registros)) {
+          db.grupos = res.registros.map(formatearGrupoBD);
+        }
+      } catch (err) {
+        console.error('Error cargando grupos:', err);
+      }
+    }
+
+    async function loadCatalogosReferencia() {
+      try {
+        const [resAulas, resEstatus, resDocentes, resCursos, resPeriodos, resHorarios, resIdiomas] = await Promise.all([
+          apiCall('aulas', 'listar'),
+          apiCall('estatus_grupo', 'listar'),
+          apiCall('docentes', 'listar'),
+          apiCall('cursos', 'listar'),
+          apiCall('periodos', 'listar'),
+          apiCall('horarios', 'listar'),
+          apiCall('idiomas', 'listar')
+        ]);
+
+        if (resAulas && resAulas.estado && Array.isArray(resAulas.registros)) {
+          catalogosBD.aulas = resAulas.registros.map(a => {
+            const desc = `${a.id_aula} - ${a.nombre_aula} (Cap: ${a.capacidad_maxima})`;
+            mapasBD.aulas[a.id_aula] = desc;
+            return { id: a.id_aula, cap: Number(a.capacidad_maxima), desc };
+          });
+          MODULE_SCHEMAS.grupos.fields.find(f => f.name === 'id_aula').options = catalogosBD.aulas.map(a => a.desc);
+        }
+
+        if (resEstatus && resEstatus.estado && Array.isArray(resEstatus.registros)) {
+          catalogosBD.estatus = resEstatus.registros.map(e => {
+            const desc = `${e.id_estatus} - ${e.tipo_estatus}`;
+            mapasBD.estatus[e.id_estatus] = desc;
+            return desc;
+          });
+          MODULE_SCHEMAS.grupos.fields.find(f => f.name === 'id_estatus').options = catalogosBD.estatus;
+        }
+
+        if (resDocentes && resDocentes.estado && Array.isArray(resDocentes.registros)) {
+          catalogosBD.docentes = resDocentes.registros.map(d => {
+            const desc = `${d.id_docente} - ${d.nombres} ${d.apellido_paterno}`;
+            mapasBD.docentes[d.id_docente] = desc;
+            return desc;
+          });
+          MODULE_SCHEMAS.grupos.fields.find(f => f.name === 'id_docente').options = catalogosBD.docentes;
+          MODULE_SCHEMAS.idioma_docente.fields.find(f => f.name === 'id_docente').options = catalogosBD.docentes;
+        }
+
+        if (resCursos && resCursos.estado && Array.isArray(resCursos.registros)) {
+          catalogosBD.cursos = resCursos.registros.map(c => {
+            const desc = `${c.id_curso} - ${c.nombre_curso}`;
+            mapasBD.cursos[c.id_curso] = desc;
+            return desc;
+          });
+          MODULE_SCHEMAS.grupos.fields.find(f => f.name === 'id_curso').options = catalogosBD.cursos;
+        }
+
+        if (resPeriodos && resPeriodos.estado && Array.isArray(resPeriodos.registros)) {
+          catalogosBD.periodos = resPeriodos.registros.map(p => {
+            const desc = `${p.id_periodo} - ${p.nombre_periodo}`;
+            mapasBD.periodos[p.id_periodo] = desc;
+            return desc;
+          });
+          MODULE_SCHEMAS.grupos.fields.find(f => f.name === 'id_periodo').options = catalogosBD.periodos;
+        }
+
+        if (resHorarios && resHorarios.estado && Array.isArray(resHorarios.registros)) {
+          catalogosBD.horarios = resHorarios.registros.map(h => {
+            const hi = String(h.hora_inicio || '').slice(0, 5);
+            const hf = String(h.hora_fin || '').slice(0, 5);
+            const desc = `${h.id_horario} - ${h.dias} (${hi}-${hf})`;
+            mapasBD.horarios[h.id_horario] = desc;
+            return desc;
+          });
+          MODULE_SCHEMAS.grupos.fields.find(f => f.name === 'id_horario').options = catalogosBD.horarios;
+        }
+
+        if (resIdiomas && resIdiomas.estado && Array.isArray(resIdiomas.registros)) {
+          catalogosBD.idiomas = resIdiomas.registros.map(i => {
+            const desc = `${i.id_idioma} - ${i.nombre}`;
+            mapasBD.idiomas[i.id_idioma] = desc;
+            return desc;
+          });
+          MODULE_SCHEMAS.idioma_docente.fields.find(f => f.name === 'id_idioma').options = catalogosBD.idiomas;
+        }
+
+        await loadGruposFromBackend();
+        updateBadges();
+      } catch (err) {
+        console.error('Error cargando catálogos de programación:', err);
+      }
+    }
+
+    function updateBadges() {
+      for (const mod in db) {
+        const badge = document.getElementById(`badge-${mod}`);
+        if (badge) badge.innerText = db[mod].length;
+      }
+    }
+
+    function showHoneycombView() {
+      document.getElementById('view-honeycomb').classList.remove('hidden');
+      document.getElementById('view-crud').classList.add('hidden');
+      document.getElementById('btn-back-home').classList.add('hidden');
+      currentModule = null;
+      updateBadges();
+      lucide.createIcons();
+    }
+
+    async function selectModule(moduleKey) {
+      currentModule = moduleKey;
+      const schema = MODULE_SCHEMAS[moduleKey];
+
+      if (schema.hasBackend) {
+        await loadGruposFromBackend();
+      }
+
+      const statusBadge = document.getElementById('backend-status-badge');
+      if (statusBadge) {
+        statusBadge.innerText = schema.hasBackend ? 'Conectado a BD' : 'Consulta Especial (En Memoria)';
+        statusBadge.className = schema.hasBackend
+          ? 'text-[10px] text-emerald-300 bg-sage-hover px-2 py-0.5 rounded'
+          : 'text-[10px] text-amber-300 bg-sage-hover px-2 py-0.5 rounded';
+      }
+
+      document.getElementById('module-title').innerText = schema.name;
+      document.getElementById('module-subtitle').innerText = `Tabla: ${schema.table}`;
+      document.getElementById('module-icon').setAttribute('data-lucide', schema.icon);
+
+      document.getElementById('view-honeycomb').classList.add('hidden');
+      document.getElementById('view-crud').classList.remove('hidden');
+      document.getElementById('btn-back-home').classList.remove('hidden');
+
+      setOperation('consultar');
+      lucide.createIcons();
+    }
+
+    function setConsoleCommand(cmd) {
+      document.getElementById('python-console-cmd').innerText = cmd;
+    }
+
+    function setOperation(op) {
+      ['crear', 'consultar', 'actualizar', 'eliminar'].forEach(o => {
+        document.getElementById(`btn-op-${o}`).classList.remove('active');
+        document.getElementById(`panel-${o}`).classList.add('hidden');
+      });
+      document.getElementById(`btn-op-${op}`).classList.add('active');
+      document.getElementById(`panel-${op}`).classList.remove('hidden');
+
+      const schema = MODULE_SCHEMAS[currentModule];
+
+      if (op === 'crear') {
+        setConsoleCommand(`${schema.class}.crear(**datos)`);
+        buildCreateForm();
+      } else if (op === 'consultar') {
+        setConsoleCommand(`${schema.class}.consultar_todos()`);
+        document.getElementById('table-search').value = '';
+        renderTable();
+      } else if (op === 'actualizar') {
+        setConsoleCommand(`${schema.class}.actualizar(id, **datos)`);
+        populateIdSelectors('select-update-id');
+        document.getElementById('update-workspace').classList.add('hidden');
+        document.getElementById('select-update-id').value = '';
+        switchUpdateTab('completo');
+      } else if (op === 'eliminar') {
+        setConsoleCommand(`${schema.class}.eliminar(id)`);
+        populateIdSelectors('select-delete-id');
+      }
+    }
+
+    // CREATE
+    function buildCreateForm() {
+      const schema = MODULE_SCHEMAS[currentModule];
+      const container = document.getElementById('fields-crear');
+      let html = '';
+      schema.fields.forEach(f => {
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label} ${f.required?'<span class="text-rose-500">*</span>':''}</label>`;
+
+        let req = f.required ? 'required' : '';
+        if (f.autoId) {
+          html += `<input type="text" name="${f.name}" readonly placeholder="Generado automáticamente por la BD" class="bg-sage-bg opacity-70 cursor-not-allowed border border-sage-border rounded-md px-3 py-1.5 text-sm font-mono text-sage-subtext">`;
+        } else if (f.type === 'select') {
+          html += `<select name="${f.name}" ${req} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+            <option value="">-- Seleccionar --</option>
+            ${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>`;
+        } else {
+          let extraAttr = '';
+          if(f.min !== undefined) extraAttr += ` min="${f.min}"`;
+          if(f.placeholder) extraAttr += ` placeholder="${f.placeholder}"`;
+
+          html += `<input type="${f.type}" name="${f.name}" ${req} ${extraAttr} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent placeholder-slate-300">`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    // Business Logic Validations (Grupos)
+    function runBusinessValidations(newRec, excludeId = null) {
+      if (currentModule !== 'grupos') return true; // Validaciones solo aplican a grupos
+
+      // 1. Cupo Max >= Cupo Min
+      if (newRec.cupo_maximo < newRec.cupo_minimo) {
+        showToast("El cupo máximo no puede ser menor al cupo mínimo.", "error");
+        return false;
+      }
+
+      // 2. Capacidad Aula
+      const selectedAula = catalogosBD.aulas.find(a => a.desc === newRec.id_aula);
+      if (selectedAula && newRec.cupo_maximo > selectedAula.cap) {
+        showToast(`El cupo máximo (${newRec.cupo_maximo}) supera la capacidad del aula (${selectedAula.cap}).`, "error");
+        return false;
+      }
+
+      // 3. Evitar Empalmes (Mismo Periodo + Mismo Horario)
+      const isOverlap = db.grupos.some(g => {
+        if (excludeId && g.id_grupo == excludeId) return false; // Al actualizar, ignorar a sí mismo
+
+        if (g.id_periodo === newRec.id_periodo && g.id_horario === newRec.id_horario) {
+          // Checar si choca el Aula
+          if (g.id_aula === newRec.id_aula) {
+            showToast("Empalme: Esa aula ya está ocupada en ese periodo y horario.", "error");
+            return true;
+          }
+          // Checar si choca el Docente
+          if (g.id_docente === newRec.id_docente) {
+            showToast("Empalme: El docente ya tiene un grupo asignado en ese periodo y horario.", "error");
+            return true;
+          }
+        }
+        return false;
+      });
+
+      if (isOverlap) return false;
+
+      return true;
+    }
+
+    async function handleCreate(e) {
+      e.preventDefault();
+      const schema = MODULE_SCHEMAS[currentModule];
+      const formData = new FormData(e.target);
+      const newRec = {};
+      schema.fields.forEach(f => {
+        if (f.autoId) return;
+        let val = formData.get(f.name);
+        if(f.type === 'number' && val !== '' && val !== null) val = Number(val);
+        newRec[f.name] = val;
+      });
+
+      // Ejecutar validaciones de negocio en la vista
+      if (!runBusinessValidations(newRec)) return;
+
+      if (schema.hasBackend) {
+        const res = await apiCall(currentModule, 'crear', null, newRec);
+        if (!res || !res.estado) {
+          showToast((res && (res.mensaje || res.error)) || `Error al crear en ${schema.table}`, 'error');
+          return;
+        }
+        await loadGruposFromBackend();
+        showToast(`Registro creado exitosamente en ${schema.table}`);
+        e.target.reset();
+        updateBadges();
+        setOperation('consultar');
+        return;
+      }
+
+      const pk = schema.primaryKey;
+      if (db[currentModule].some(r => r[pk] === newRec[pk])) {
+        showToast(`El ID ${newRec[pk]} ya existe`, 'error');
+        return;
+      }
+
+      db[currentModule].push(newRec);
+      showToast(`Registro creado exitosamente en ${schema.table}`);
+      e.target.reset();
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    // READ
+    function renderTable() {
+      const schema = MODULE_SCHEMAS[currentModule];
+      const data = db[currentModule];
+      const search = (document.getElementById('table-search').value || '').toLowerCase();
+
+      let head = '<tr>';
+      if (currentModule === 'grupos') {
+        ['Código', 'Curso', 'Docente', 'Horario', 'Aula', 'Estatus'].forEach(lbl => {
+          head += `<th class="px-3 py-2 whitespace-nowrap">${lbl}</th>`;
+        });
+      } else {
+        schema.fields.forEach(f => head += `<th class="px-3 py-2 whitespace-nowrap">${f.label}</th>`);
+      }
+      head += '</tr>';
+      document.getElementById('table-head').innerHTML = head;
+
+      const filtered = data.filter(r => {
+        return Object.values(r).some(v => String(v).toLowerCase().includes(search));
+      });
+
+      document.getElementById('table-count').innerText = `${filtered.length} regs`;
+
+      if (filtered.length === 0) {
+        document.getElementById('table-body').innerHTML = `<tr><td colspan="7" class="px-3 py-6 text-center text-xs text-sage-subtext">No se encontraron resultados.</td></tr>`;
+        return;
+      }
+
+      let body = '';
+      filtered.forEach(item => {
+        body += `<tr class="hover:bg-sage-bg/50 transition">`;
+
+        if (currentModule === 'grupos') {
+            const cursoStr = String(item.id_curso || '');
+            const docenteStr = String(item.id_docente || '');
+            const horarioStr = String(item.id_horario || '');
+            const aulaStr = String(item.id_aula || '');
+            const rawEstatus = String(item.id_estatus || '');
+
+            body += `<td class="px-3 py-2 font-bold font-mono text-sage-accent">${item.codigo_grupo}</td>`;
+            body += `<td class="px-3 py-2">${cursoStr.split(' - ')[1] || cursoStr}</td>`;
+            body += `<td class="px-3 py-2 text-sage-subtext">${docenteStr.split(' - ')[1] || docenteStr}</td>`;
+            body += `<td class="px-3 py-2 text-xs">${horarioStr.split(' - ')[1] || horarioStr}</td>`;
+            body += `<td class="px-3 py-2 text-xs">${aulaStr.split(' - ')[1] || aulaStr}</td>`;
+
+            let estatusStr = rawEstatus.includes(' - ') ? rawEstatus.split(' - ')[1] : rawEstatus;
+            let color = estatusStr === 'Activo' ? 'bg-sage-light text-sage-text border-sage-border'
+                      : estatusStr === 'En espera' ? 'bg-amber-100 text-amber-800 border-amber-200'
+                      : 'bg-rose-100 text-rose-800 border-rose-200';
+            body += `<td class="px-3 py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${color} border">${estatusStr}</span></td>`;
+        } else {
+            // Generico para idioma_docente
+            schema.fields.forEach(f => {
+              let v = item[f.name];
+              if(f.name === 'es_principal') {
+                 let color = v === 'Sí' ? 'bg-sage-light text-sage-text' : 'bg-sage-bg text-sage-subtext';
+                 body += `<td class="px-3 py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${color} border border-sage-border">${v}</span></td>`;
+              } else if(f.isKey) {
+                 body += `<td class="px-3 py-2 font-mono font-bold text-sage-accent">#${v}</td>`;
+              } else {
+                 body += `<td class="px-3 py-2 whitespace-nowrap">${v}</td>`;
+              }
+            });
+        }
+
+        body += `</tr>`;
+      });
+      document.getElementById('table-body').innerHTML = body;
+    }
+
+    // UPDATE
+    function populateIdSelectors(elemId) {
+      const sel = document.getElementById(elemId);
+      const pk = MODULE_SCHEMAS[currentModule].primaryKey;
+      let html = `<option value="">-- Seleccionar ID --</option>`;
+      db[currentModule].forEach(r => {
+        let label = currentModule === 'grupos' ? r.codigo_grupo : (String(r.id_docente).split(' - ')[1] || r.id_docente);
+        html += `<option value="${r[pk]}">#${r[pk]} - ${label}</option>`;
+      });
+      sel.innerHTML = html;
+    }
+
+    function loadUpdateData() {
+      const id = document.getElementById('select-update-id').value;
+      const ws = document.getElementById('update-workspace');
+      if (!id) { ws.classList.add('hidden'); return; }
+
+      ws.classList.remove('hidden');
+      const schema = MODULE_SCHEMAS[currentModule];
+      const record = db[currentModule].find(r => r[schema.primaryKey] == id);
+
+      // Fields Full
+      const container = document.getElementById('fields-actualizar');
+      let html = '';
+      schema.fields.forEach(f => {
+        const v = record[f.name] ?? '';
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label}</label>`;
+        if (f.type === 'select') {
+          html += `<select name="${f.name}" class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent">
+            ${f.options.map(o => `<option value="${o}" ${o==v?'selected':''}>${o}</option>`).join('')}
+          </select>`;
+        } else {
+          let extraAttr = '';
+          if(f.min !== undefined) extraAttr += ` min="${f.min}"`;
+          html += `<input type="${f.type}" ${extraAttr} name="${f.name}" value="${v}" ${f.isKey?'readonly class="bg-sage-bg opacity-70"':'class="bg-white"'} border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent">`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+
+      // Fields Fast State
+      const stSel = document.getElementById('select-fast-state');
+      const lblFast = document.getElementById('lbl-fast-state');
+      const metFast = document.getElementById('lbl-metodo-estado');
+
+      if (currentModule === 'grupos') {
+          lblFast.innerText = "Nuevo Estatus del Grupo:";
+          metFast.innerHTML = `Invoca: <code class="font-mono bg-sage-bg px-1 rounded">cambiar_estatus(id_grupo, id_estatus)</code>`;
+          stSel.innerHTML = catalogosBD.estatus.map(o => `<option value="${o}" ${o==record.id_estatus?'selected':''}>${o}</option>`).join('');
+      } else {
+          lblFast.innerText = "¿Es Idioma Principal?:";
+          metFast.innerHTML = `Invoca: <code class="font-mono bg-sage-bg px-1 rounded">cambiar_principal(id, bool)</code>`;
+          stSel.innerHTML = `<option value="Sí" ${record.es_principal==='Sí'?'selected':''}>Sí</option><option value="No" ${record.es_principal==='No'?'selected':''}>No</option>`;
+      }
+    }
+
+    function switchUpdateTab(tab) {
+      if(tab==='completo') {
+        document.getElementById('btn-utab-completo').className = "px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent";
+        document.getElementById('btn-utab-estado').className = "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text";
+        document.getElementById('form-update-completo').classList.remove('hidden');
+        document.getElementById('form-update-estado').classList.add('hidden');
+
+        const id = document.getElementById('select-update-id').value;
+        const schema = MODULE_SCHEMAS[currentModule];
+        setConsoleCommand(`${schema.class}.actualizar(${id || 'id'}, **datos)`);
+      } else {
+        document.getElementById('btn-utab-estado').className = "px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent";
+        document.getElementById('btn-utab-completo').className = "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text";
+        document.getElementById('form-update-estado').classList.remove('hidden');
+        document.getElementById('form-update-completo').classList.add('hidden');
+
+        const id = document.getElementById('select-update-id').value;
+        const schema = MODULE_SCHEMAS[currentModule];
+        if (currentModule === 'grupos') {
+            setConsoleCommand(`${schema.class}.cambiar_estatus(${id || 'id_grupo'}, id_estatus)`);
+        } else {
+            setConsoleCommand(`${schema.class}.cambiar_principal(${id || 'id'}, bool)`);
+        }
+      }
+    }
+
+    async function handleUpdate(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('select-update-id').value);
+      const schema = MODULE_SCHEMAS[currentModule];
+      const formData = new FormData(e.target);
+
+      const updatedRec = {};
+      schema.fields.forEach(f => {
+        let val = formData.get(f.name);
+        if(f.type === 'number' && val !== '' && val !== null) val = Number(val);
+        updatedRec[f.name] = val;
+      });
+
+      // Run Validations (excluding self for overlap check in groups)
+      if (!runBusinessValidations(updatedRec, id)) return;
+
+      if (schema.hasBackend) {
+        const res = await apiCall(currentModule, 'actualizar', id, updatedRec);
+        if (!res || !res.estado) {
+          showToast((res && (res.mensaje || res.error)) || `Error al actualizar #${id}`, 'error');
+          return;
+        }
+        await loadGruposFromBackend();
+        showToast(`Registro #${id} actualizado`);
+        setOperation('consultar');
+        return;
+      }
+
+      const index = db[currentModule].findIndex(r => r[schema.primaryKey] === id);
+      db[currentModule][index] = updatedRec;
+      showToast(`Registro #${id} actualizado`);
+      setOperation('consultar');
+    }
+
+    async function handleChangeState(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('select-update-id').value);
+      const schema = MODULE_SCHEMAS[currentModule];
+      const nv = document.getElementById('select-fast-state').value;
+
+      if (schema.hasBackend) {
+        const res = await apiCall(currentModule, 'estado', id, { nuevo: nv });
+        if (!res || !res.estado) {
+          showToast((res && (res.mensaje || res.error)) || `Error al cambiar estatus de #${id}`, 'error');
+          return;
+        }
+        await loadGruposFromBackend();
+        showToast(`Estatus de #${id} actualizado`);
+        setOperation('consultar');
+        return;
+      }
+
+      const index = db[currentModule].findIndex(r => r[schema.primaryKey] === id);
+      db[currentModule][index][schema.stateField] = nv;
+      showToast(`Estatus/Propiedad de #${id} actualizado`);
+      setOperation('consultar');
+    }
+
+    // DELETE
+    async function handleDelete() {
+      const id = Number(document.getElementById('select-delete-id').value);
+      if(!id) return;
+      const schema = MODULE_SCHEMAS[currentModule];
+
+      if (schema.hasBackend) {
+        const res = await apiCall(currentModule, 'eliminar', id, {});
+        if (!res || !res.estado) {
+          showToast((res && (res.mensaje || res.error)) || `No fue posible eliminar #${id}`, 'error');
+          return;
+        }
+        await loadGruposFromBackend();
+        showToast(`Registro #${id} eliminado permanentemente`, 'error');
+        updateBadges();
+        setOperation('consultar');
+        return;
+      }
+
+      db[currentModule] = db[currentModule].filter(r => r[schema.primaryKey] !== id);
+      showToast(`Registro #${id} eliminado permanentemente`, 'error');
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    let tOut;
+    function showToast(msg, type='success') {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+
+      if(type==='success'){
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'check-circle');
+        document.getElementById('toast-icon').classList.replace('text-rose-400', 'text-emerald-400');
+      } else {
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-rose-900 border-rose-800 text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'alert-circle');
+        document.getElementById('toast-icon').classList.replace('text-emerald-400', 'text-rose-400');
+      }
+      lucide.createIcons();
+      clearTimeout(tOut);
+      tOut = setTimeout(()=> {
+        el.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(()=> el.classList.add('hidden'), 300);
+      }, 3500);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCatalogosReferencia();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

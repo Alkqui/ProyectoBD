@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguimiento Académico - Evaluación y Kárdex</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              bg: '#F6F7F4',
+              card: '#FFFFFF',
+              text: '#222B25',
+              subtext: '#667068',
+              border: '#DDE2DB',
+              accent: '#4F6F52',
+              hover: '#3A5A40',
+              light: '#E8EBE7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F6F7F4; color: #222B25; }
+    .clip-hex { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+    .honeycomb-wrapper { display: flex; flex-direction: column; align-items: center; gap: -14px; }
+    .honeycomb-row { display: flex; justify-content: center; gap: 16px; margin-bottom: -32px; }
+    @media (max-width: 768px) { .honeycomb-row { margin-bottom: -18px; gap: 8px; flex-wrap: wrap; } }
+    .hex-btn { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .hex-btn:hover { transform: translateY(-8px) scale(1.04); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F6F7F4; }
+    ::-webkit-scrollbar-thumb { background: #DDE2DB; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4F6F52; }
+
+    .crud-menu-btn { transition: all 0.2s; border-left: 3px solid transparent; }
+    .crud-menu-btn.active { background-color: #E8EBE7; border-left-color: #4F6F52; color: #222B25; font-weight: 600; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans selection:bg-sage-accent selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-sage-border bg-sage-card sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="showHoneycombView()">
+        <div class="w-10 h-10 rounded-xl bg-sage-accent flex items-center justify-center text-white shadow-md">
+          <i data-lucide="languages" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-sage-text flex items-center gap-1.5">
+            Centro de Idiomas
+          </span>
+          <p class="text-[10px] text-sage-subtext uppercase tracking-wider font-bold">Módulo de Seguimiento Académico</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sage-light border border-sage-border text-sage-text">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Sistema en Línea
+        </span>
+        <a href="/" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-text border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="home" class="w-4 h-4 text-sage-accent"></i> Menú Principal
+        </a>
+        <button onclick="showHoneycombView()" id="btn-back-home" class="hidden px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-accent border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i> Módulos
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-center relative">
+
+    <!-- VIEW 1: HONEYCOMB MENU -->
+    <section id="view-honeycomb" class="transition-all duration-500 ease-out flex flex-col items-center">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-sage-text tracking-tight">
+          Evaluación y Kárdex
+        </h1>
+        <p class="mt-2 text-sm text-sage-subtext">
+          Cierre de actas, registro de calificaciones y consulta de trayectoria estudiantil.
+        </p>
+      </div>
+
+      <div class="honeycomb-wrapper my-4">
+        <!-- Row 1: 2 items centered -->
+        <div class="honeycomb-row">
+          <div onclick="selectModule('actas')" class="hex-btn cursor-pointer group">
+            <div class="w-40 h-44 sm:w-48 sm:h-52 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="file-check-2" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text">Cierre de Actas</h3>
+                <span class="mt-2 text-[10px] px-2.5 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-accent font-mono font-semibold" id="badge-actas">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div onclick="selectModule('kardex')" class="hex-btn cursor-pointer group">
+            <div class="w-40 h-44 sm:w-48 sm:h-52 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text">Kárdex Estudiantil</h3>
+                <span class="mt-2 text-[10px] px-2.5 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-accent font-mono font-semibold">Consultas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: CRUD WORKSPACE -->
+    <section id="view-crud" class="hidden transition-all duration-300 flex-1 flex flex-col">
+
+      <!-- Python Console Bar -->
+      <div class="bg-sage-text text-white text-xs font-mono p-2.5 rounded-t-xl flex items-center justify-between border-b border-sage-hover">
+        <div class="flex items-center gap-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+          <span>>>> <span id="python-console-cmd" class="text-emerald-300">Seleccionando submódulo...</span></span>
+        </div>
+        <span class="text-[10px] text-sage-subtext bg-sage-hover px-2 py-0.5 rounded">Backend Mock</span>
+      </div>
+
+      <div class="bg-sage-card border-x border-b border-sage-border rounded-b-xl shadow-sm flex flex-col md:flex-row overflow-hidden min-h-[600px]">
+
+        <!-- Left Sidebar: Submenu -->
+        <aside class="w-full md:w-64 border-r border-sage-border bg-sage-bg/50 p-4 flex flex-col">
+          <div class="flex items-center gap-3 mb-6 px-2">
+            <div class="w-8 h-8 rounded-lg bg-sage-accent text-white flex items-center justify-center shadow-sm">
+              <i id="module-icon" data-lucide="database" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 id="module-title" class="text-lg font-bold text-sage-text capitalize leading-tight">Módulo</h2>
+              <p id="module-subtitle" class="text-[10px] text-sage-subtext font-mono">Tabla: -</p>
+            </div>
+          </div>
+
+          <p class="text-[10px] font-bold tracking-wider text-sage-subtext uppercase mb-2 px-2">Operaciones</p>
+          <nav class="flex flex-col gap-1" id="nav-operations">
+            <!-- Populated dynamically based on module -->
+          </nav>
+        </aside>
+
+        <!-- Right Content Area -->
+        <div class="flex-1 p-4 md:p-6 bg-sage-card overflow-y-auto">
+
+          <!-- PANEL 1: CREAR (Actas) -->
+          <div id="panel-crear" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <div class="mb-5 flex justify-between items-center">
+              <div>
+                <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block">Registrar Calificación</h3>
+                <p class="text-xs text-sage-subtext mt-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">crear(**datos)</code> (Solo permite inscripciones confirmadas).</p>
+              </div>
+            </div>
+            <form id="form-crear" onsubmit="handleCreate(event)" class="space-y-4">
+              <div id="fields-crear" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+              <div class="col-span-1 sm:col-span-2 bg-sage-bg p-3 rounded-lg border border-sage-border mt-4 flex items-start gap-3">
+                <i data-lucide="info" class="w-5 h-5 text-sage-accent mt-0.5"></i>
+                <div class="text-xs text-sage-subtext">
+                  <strong class="text-sage-text block mb-1">Acreditación Automática:</strong>
+                  El alumno acredita el nivel <strong class="text-emerald-600">solo si la calificación final es &ge; 70</strong>. De lo contrario, deberá recursar el nivel o presentar examen extraordinario.
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-sage-border text-right">
+                <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                  <i data-lucide="save" class="w-4 h-4"></i> Guardar Acta
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PANEL 2: CONSULTAR -->
+          <div id="panel-consultar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4" id="title-consultar">Listado de Actas Cerradas</h3>
+
+            <div class="flex justify-between items-end mb-4">
+              <div>
+                <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Búsqueda General:</label>
+                <div class="relative w-72">
+                  <i data-lucide="search" class="w-4 h-4 text-sage-subtext absolute left-3 top-2"></i>
+                  <input type="text" id="table-search" onkeyup="renderTable()" placeholder="Folio, inscripción, estatus..." class="w-full bg-white border border-sage-border rounded-md pl-9 pr-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+                </div>
+              </div>
+              <span id="table-count" class="text-xs font-mono text-sage-subtext">0 regs</span>
+            </div>
+
+            <div class="overflow-x-auto border border-sage-border rounded-lg shadow-sm">
+              <table class="w-full text-left text-sm text-sage-text divide-y divide-sage-border">
+                <thead class="bg-sage-light text-sage-subtext font-semibold uppercase tracking-wider text-[10px]" id="table-head"></thead>
+                <tbody class="divide-y divide-sage-border bg-white" id="table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PANEL 3: ACTUALIZAR (Actas) -->
+          <div id="panel-actualizar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4" id="title-actualizar">Editar Acta / Calificación</h3>
+
+            <div class="mb-6 p-4 bg-sage-bg border border-sage-border rounded-xl">
+              <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Seleccionar Acta (ID - Inscripción):</label>
+              <select id="select-update-id" onchange="loadUpdateData()" class="w-full sm:w-64 bg-white border border-sage-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-sage-accent font-mono">
+                <option value="">-- Seleccionar --</option>
+              </select>
+            </div>
+
+            <div id="update-workspace" class="hidden">
+              <form id="form-update-completo" onsubmit="handleUpdate(event)" class="space-y-4">
+                <p class="text-xs text-sage-subtext mb-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">actualizar(id, **datos)</code></p>
+                <div id="fields-actualizar" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div class="pt-4 border-t border-sage-border text-right">
+                  <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="check" class="w-4 h-4"></i> Guardar Cambios
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- PANEL 4: ELIMINAR (Actas) -->
+          <div id="panel-eliminar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-rose-500 pb-1 inline-block mb-4">Eliminar Acta</h3>
+            <p class="text-xs text-sage-subtext mb-4">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">eliminar(id)</code></p>
+
+            <div class="p-6 bg-[#FFF1F1] border border-[#FAD2D2] rounded-xl flex flex-col sm:flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-bold text-[#C84B4B] mb-1">Precaución: Acción destructiva</h4>
+                <p class="text-xs text-rose-700/80 mb-3">Eliminará el acta de calificación del sistema. Esta acción borrará el registro de la trayectoria del estudiante.</p>
+                <div class="flex gap-2 max-w-sm">
+                  <select id="select-delete-id" class="flex-1 bg-white border border-rose-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-rose-400 font-mono text-rose-900">
+                    <option value="">-- Seleccionar ID --</option>
+                  </select>
+                  <button onclick="handleDelete()" class="px-4 py-2 bg-[#C84B4B] hover:bg-rose-700 text-white font-bold text-sm rounded-md shadow-sm transition">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL KARDEX -->
+          <div id="panel-kardex" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-6">Consulta de Kárdex por Estudiante</h3>
+
+            <div class="flex gap-2 max-w-md mb-8">
+              <select id="kardex-aspirante-select" class="flex-1 bg-white border border-sage-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-sage-accent">
+                <!-- Populated dynamically -->
+              </select>
+              <button onclick="generarKardex()" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2">
+                <i data-lucide="search" class="w-4 h-4"></i> Consultar
+              </button>
+            </div>
+
+            <!-- Kardex Results -->
+            <div id="kardex-results" class="hidden space-y-6">
+
+              <!-- Student Header -->
+              <div class="bg-sage-bg border border-sage-border rounded-xl p-5 flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-14 h-14 rounded-full bg-white border-2 border-sage-border flex items-center justify-center text-sage-accent shadow-sm">
+                    <i data-lucide="user" class="w-7 h-7"></i>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-sage-text" id="kx-nombre">Nombre Estudiante</h2>
+                    <p class="text-xs text-sage-subtext font-mono mt-0.5" id="kx-matricula">ID: 000</p>
+                  </div>
+                </div>
+                <div class="bg-white px-4 py-2 rounded-lg border border-sage-border text-center shadow-sm">
+                  <p class="text-[10px] font-bold text-sage-subtext uppercase tracking-wide">Próximo Nivel Recomendado</p>
+                  <p class="text-lg font-black text-sage-accent mt-0.5" id="kx-recomendacion">N/A</p>
+                </div>
+              </div>
+
+              <!-- Grid for Tables -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Exámenes de Ubicación -->
+                <div class="bg-white border border-sage-border rounded-xl shadow-sm overflow-hidden flex flex-col">
+                  <div class="bg-sage-light px-4 py-3 border-b border-sage-border">
+                    <h3 class="text-sm font-bold text-sage-text flex items-center gap-2">
+                      <i data-lucide="clipboard-list" class="w-4 h-4 text-sage-accent"></i> Exámenes de Ubicación
+                    </h3>
+                  </div>
+                  <div class="p-0 flex-1 overflow-x-auto">
+                    <table class="w-full text-left text-xs text-sage-text">
+                      <thead class="bg-sage-bg/50 text-sage-subtext border-b border-sage-border">
+                        <tr><th class="px-3 py-2 font-semibold">Idioma</th><th class="px-3 py-2 font-semibold">Fecha</th><th class="px-3 py-2 font-semibold">Puntaje</th><th class="px-3 py-2 font-semibold">Nivel Asignado</th></tr>
+                      </thead>
+                      <tbody id="kx-examenes-body" class="divide-y divide-sage-border">
+                        <!-- Content -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Historial de Cursos -->
+                <div class="bg-white border border-sage-border rounded-xl shadow-sm overflow-hidden flex flex-col">
+                  <div class="bg-sage-light px-4 py-3 border-b border-sage-border">
+                    <h3 class="text-sm font-bold text-sage-text flex items-center gap-2">
+                      <i data-lucide="award" class="w-4 h-4 text-sage-accent"></i> Historial de Cursos (Actas)
+                    </h3>
+                  </div>
+                  <div class="p-0 flex-1 overflow-x-auto">
+                    <table class="w-full text-left text-xs text-sage-text">
+                      <thead class="bg-sage-bg/50 text-sage-subtext border-b border-sage-border">
+                        <tr><th class="px-3 py-2 font-semibold">Curso/Grupo</th><th class="px-3 py-2 font-semibold">Fecha Cierre</th><th class="px-3 py-2 font-semibold text-center">Calificación</th><th class="px-3 py-2 font-semibold text-center">Acreditado</th></tr>
+                      </thead>
+                      <tbody id="kx-cursos-body" class="divide-y divide-sage-border">
+                        <!-- Content -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden transform transition-all duration-300 ease-out translate-y-4 opacity-0 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white">
+    <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-400"></i>
+    <span id="toast-msg" class="text-sm font-medium"></span>
+  </div>
+
+  <script>
+    const today = new Date().toISOString().split('T')[0];
+
+    // DB References for Mocking Interconnected Data
+    const mcerLevels = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
+    const mockAspirantes = [
+      { id_aspirante: 1, nombres: "Luis", apellido_paterno: "Pérez", nombre_completo: "Luis Pérez" },
+      { id_aspirante: 2, nombres: "Ana", apellido_paterno: "García", nombre_completo: "Ana García" }
+    ];
+
+    const mockExamenes = [
+      { id_aspirante: 1, idioma: "Inglés", fecha_aplicacion: "2026-08-10", puntaje: 75, nivel_asignado: "B1" },
+      { id_aspirante: 2, idioma: "Francés", fecha_aplicacion: "2026-08-11", puntaje: 92, nivel_asignado: "B2" }
+    ];
+
+    const mockInscripcionesConfirmadas = [
+      { id_inscripcion: 10001, id_aspirante: 1, desc: "10001 - Luis Pérez (ING-A1)", curso: "Inglés A1", estatus: "Confirmada" },
+      { id_inscripcion: 10002, id_aspirante: 2, desc: "10002 - Ana García (FRA-B1)", curso: "Francés B1", estatus: "Confirmada" },
+      { id_inscripcion: 10003, id_aspirante: 1, desc: "10003 - Luis Pérez (ING-A2)", curso: "Inglés A2", estatus: "Confirmada" }
+    ];
+
+    const MODULE_SCHEMAS = {
+      actas: {
+        name: "Cierre de Actas y Calificaciones", class: "CrudHistorialNiveles", table: "historial_niveles", icon: "file-check-2", primaryKey: "id_acta", stateField: "acreditado",
+        fields: [
+          { name: "id_acta", label: "ID Acta", type: "number", required: true, isKey: true },
+          { name: "id_inscripcion", label: "Inscripción Confirmada", type: "select", options: mockInscripcionesConfirmadas.map(i => i.desc), required: true },
+          { name: "fecha_cierre", label: "Fecha de Cierre", type: "date", required: true, maxDate: today },
+          { name: "calificacion_final", label: "Calificación Final (0-100)", type: "number", min: 0, max: 100, required: true, calcTrigger: true },
+          { name: "acreditado", label: "Acreditado (Auto)", type: "text", readonly: true, placeholder: "Se calcula automático (>= 70)" }
+        ]
+      },
+      kardex: {
+        name: "Kárdex Estudiantil", class: "ConsultaKardex", table: "Consultas", icon: "graduation-cap"
+      }
+    };
+
+    // Initial Mock DB for Actas
+    let db = {
+      actas: [
+        { id_acta: 1, id_inscripcion: "10001 - Luis Pérez (ING-A1)", fecha_cierre: "2026-06-15", calificacion_final: 85, acreditado: "Sí" },
+        { id_acta: 2, id_inscripcion: "10002 - Ana García (FRA-B1)", fecha_cierre: "2026-06-15", calificacion_final: 65, acreditado: "No" }
+      ]
+    };
+
+    let currentModule = null;
+
+    function updateBadges() {
+      const bActas = document.getElementById('badge-actas');
+      if (bActas) bActas.innerText = db.actas.length;
+    }
+
+    function showHoneycombView() {
+      document.getElementById('view-honeycomb').classList.remove('hidden');
+      document.getElementById('view-crud').classList.add('hidden');
+      document.getElementById('btn-back-home').classList.add('hidden');
+      currentModule = null;
+      updateBadges();
+      lucide.createIcons();
+    }
+
+    function buildNavigation() {
+      const nav = document.getElementById('nav-operations');
+      let html = '';
+      if (currentModule === 'actas') {
+        html += `
+          <button onclick="setOperation('crear')" id="btn-op-crear" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> 1. Registrar Acta
+          </button>
+          <button onclick="setOperation('consultar')" id="btn-op-consultar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="list" class="w-4 h-4"></i> 2. Consultar Actas
+          </button>
+          <button onclick="setOperation('actualizar')" id="btn-op-actualizar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="edit-3" class="w-4 h-4"></i> 3. Editar Calificación
+          </button>
+          <button onclick="setOperation('eliminar')" id="btn-op-eliminar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> 4. Eliminar Acta
+          </button>
+        `;
+      } else {
+        html += `
+          <button onclick="setOperation('kardex')" id="btn-op-kardex" class="crud-menu-btn active text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="file-search" class="w-4 h-4"></i> 1. Consultar Kárdex
+          </button>
+        `;
+      }
+      nav.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function selectModule(moduleKey) {
+      currentModule = moduleKey;
+      const schema = MODULE_SCHEMAS[moduleKey];
+
+      document.getElementById('module-title').innerText = schema.name;
+      document.getElementById('module-subtitle').innerText = `Tabla: ${schema.table}`;
+      document.getElementById('module-icon').setAttribute('data-lucide', schema.icon);
+
+      document.getElementById('view-honeycomb').classList.add('hidden');
+      document.getElementById('view-crud').classList.remove('hidden');
+      document.getElementById('btn-back-home').classList.remove('hidden');
+
+      buildNavigation();
+
+      if (currentModule === 'kardex') {
+        populateKardexDropdown();
+        setOperation('kardex');
+      } else {
+        setOperation('consultar');
+      }
+      lucide.createIcons();
+    }
+
+    function setConsoleCommand(cmd) {
+      document.getElementById('python-console-cmd').innerText = cmd;
+    }
+
+    function setOperation(op) {
+      ['crear', 'consultar', 'actualizar', 'eliminar', 'kardex'].forEach(o => {
+        const btn = document.getElementById(`btn-op-${o}`);
+        if(btn) btn.classList.remove('active');
+        const panel = document.getElementById(`panel-${o}`);
+        if(panel) panel.classList.add('hidden');
+      });
+
+      const activeBtn = document.getElementById(`btn-op-${op}`);
+      if(activeBtn) activeBtn.classList.add('active');
+      const activePanel = document.getElementById(`panel-${op}`);
+      if(activePanel) activePanel.classList.remove('hidden');
+
+      const schema = MODULE_SCHEMAS[currentModule];
+
+      if (op === 'crear') {
+        setConsoleCommand(`${schema.class}.crear(**datos)`);
+        buildCreateForm();
+      } else if (op === 'consultar') {
+        setConsoleCommand(`${schema.class}.consultar_todos()`);
+        document.getElementById('table-search').value = '';
+        renderTable();
+      } else if (op === 'actualizar') {
+        setConsoleCommand(`${schema.class}.actualizar(id, **datos)`);
+        populateIdSelectors('select-update-id');
+        document.getElementById('select-update-id').value = '';
+        document.getElementById('update-workspace').classList.add('hidden');
+      } else if (op === 'eliminar') {
+        setConsoleCommand(`${schema.class}.eliminar(id)`);
+        populateIdSelectors('select-delete-id');
+      } else if (op === 'kardex') {
+        setConsoleCommand(`Consultas.generar_kardex(id_aspirante)`);
+        document.getElementById('kardex-results').classList.add('hidden');
+      }
+    }
+
+    // Auto-calculate Accreditation
+    function calcAcreditado() {
+      if (currentModule !== 'actas') return;
+      const visibleForm = document.getElementById('panel-crear').classList.contains('hidden') ?
+                          document.getElementById('form-update-completo') :
+                          document.getElementById('form-crear');
+
+      const califInput = visibleForm.querySelector('input[name="calificacion_final"]');
+      const acreditadoInput = visibleForm.querySelector('input[name="acreditado"]');
+
+      if (califInput && acreditadoInput) {
+        const val = parseFloat(califInput.value);
+        if (!isNaN(val)) {
+          if (val >= 70) {
+            acreditadoInput.value = "Sí";
+            acreditadoInput.className = "bg-emerald-50 border border-emerald-200 rounded-md px-3 py-1.5 text-sm font-bold text-emerald-600";
+          } else {
+            acreditadoInput.value = "No";
+            acreditadoInput.className = "bg-rose-50 border border-rose-200 rounded-md px-3 py-1.5 text-sm font-bold text-rose-600";
+          }
+        } else {
+          acreditadoInput.value = "";
+          acreditadoInput.className = "bg-sage-bg border border-sage-border rounded-md px-3 py-1.5 text-sm font-bold text-sage-subtext";
+        }
+      }
+    }
+
+    // CREATE (Actas)
+    function buildCreateForm() {
+      const schema = MODULE_SCHEMAS['actas'];
+      const container = document.getElementById('fields-crear');
+      let html = '';
+      schema.fields.forEach(f => {
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label} ${f.required?'<span class="text-rose-500">*</span>':''}</label>`;
+
+        let trigger = f.calcTrigger ? 'onkeyup="calcAcreditado()" onchange="calcAcreditado()"' : '';
+
+        if (f.type === 'select') {
+          html += `<select name="${f.name}" required ${trigger} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+            <option value="">-- Seleccionar --</option>
+            ${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>`;
+        } else {
+          let extraAttr = '';
+          if(f.min !== undefined) extraAttr += ` min="${f.min}"`;
+          if(f.max !== undefined) extraAttr += ` max="${f.max}"`;
+          if(f.maxDate) extraAttr += ` max="${f.maxDate}"`;
+
+          if(f.readonly) {
+            extraAttr += ` readonly class="bg-sage-bg opacity-80 border border-sage-border rounded-md px-3 py-1.5 text-sm font-bold text-sage-subtext" placeholder="${f.placeholder}"`;
+          } else {
+            extraAttr += ` class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent"`;
+          }
+
+          html += `<input type="${f.type}" name="${f.name}" ${f.required?'required':''} ${extraAttr} ${trigger}>`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function handleCreate(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const newRec = {};
+      MODULE_SCHEMAS['actas'].fields.forEach(f => {
+        let val = formData.get(f.name);
+        if(f.type === 'number') val = Number(val);
+        newRec[f.name] = val;
+      });
+
+      const pk = MODULE_SCHEMAS['actas'].primaryKey;
+      if (db.actas.some(r => r[pk] === newRec[pk])) {
+        showToast(`El ID ${newRec[pk]} ya existe`, 'error');
+        return;
+      }
+
+      // Auto-validate logic at save
+      newRec.acreditado = newRec.calificacion_final >= 70 ? "Sí" : "No";
+
+      db.actas.push(newRec);
+      showToast(`Acta registrada exitosamente.`);
+      e.target.reset();
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    // READ
+    function renderTable() {
+      const data = db.actas;
+      const search = (document.getElementById('table-search').value || '').toLowerCase();
+
+      let head = '<tr>';
+      ['ID Acta', 'Inscripción', 'Fecha Cierre', 'Calificación', 'Acreditado'].forEach(lbl => {
+        head += `<th class="px-3 py-2 whitespace-nowrap">${lbl}</th>`;
+      });
+      head += '</tr>';
+      document.getElementById('table-head').innerHTML = head;
+
+      const filtered = data.filter(r => {
+        return Object.values(r).some(v => String(v).toLowerCase().includes(search));
+      });
+
+      document.getElementById('table-count').innerText = `${filtered.length} regs`;
+
+      if (filtered.length === 0) {
+        document.getElementById('table-body').innerHTML = `<tr><td colspan="5" class="px-3 py-6 text-center text-xs text-sage-subtext">No se encontraron actas.</td></tr>`;
+        return;
+      }
+
+      let body = '';
+      filtered.forEach(item => {
+        body += `<tr class="hover:bg-sage-bg/50 transition">`;
+        body += `<td class="px-3 py-2 font-mono font-bold text-sage-accent">#${item.id_acta}</td>`;
+        body += `<td class="px-3 py-2 text-xs truncate max-w-[200px]">${item.id_inscripcion}</td>`;
+        body += `<td class="px-3 py-2 text-xs">${item.fecha_cierre}</td>`;
+        body += `<td class="px-3 py-2 font-mono font-bold">${item.calificacion_final}</td>`;
+
+        let color = item.acreditado === 'Sí' ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                  : 'bg-rose-100 text-rose-800 border-rose-200';
+        let txt = item.acreditado === 'Sí' ? 'Sí (Aprobado)' : 'No (Reprobado)';
+        body += `<td class="px-3 py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${color} border">${txt}</span></td>`;
+        body += `</tr>`;
+      });
+      document.getElementById('table-body').innerHTML = body;
+    }
+
+    // UPDATE
+    function populateIdSelectors(elemId) {
+      const sel = document.getElementById(elemId);
+      let html = `<option value="">-- Seleccionar --</option>`;
+      db.actas.forEach(r => {
+        html += `<option value="${r.id_acta}">#${r.id_acta} - ${r.id_inscripcion}</option>`;
+      });
+      sel.innerHTML = html;
+    }
+
+    function loadUpdateData() {
+      const id = document.getElementById('select-update-id').value;
+      const ws = document.getElementById('update-workspace');
+      if (!id) { ws.classList.add('hidden'); return; }
+
+      ws.classList.remove('hidden');
+      const record = db.actas.find(r => r.id_acta == id);
+
+      const container = document.getElementById('fields-actualizar');
+      let html = '';
+      MODULE_SCHEMAS['actas'].fields.forEach(f => {
+        const v = record[f.name] !== undefined ? record[f.name] : '';
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label}</label>`;
+
+        let trigger = f.calcTrigger ? 'onkeyup="calcAcreditado()" onchange="calcAcreditado()"' : '';
+
+        if (f.type === 'select') {
+          html += `<select name="${f.name}" required ${trigger} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent">
+            ${f.options.map(o => `<option value="${o}" ${o==v?'selected':''}>${o}</option>`).join('')}
+          </select>`;
+        } else {
+          let extraAttr = '';
+          if(f.min !== undefined) extraAttr += ` min="${f.min}"`;
+          if(f.max !== undefined) extraAttr += ` max="${f.max}"`;
+
+          if(f.readonly) {
+            let colorCls = v === 'Sí' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : (v === 'No' ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-sage-bg opacity-80 text-sage-subtext');
+            extraAttr += ` readonly class="${colorCls} border border-sage-border rounded-md px-3 py-1.5 text-sm font-bold"`;
+          } else {
+            let ro = f.isKey ? 'readonly class="bg-sage-bg opacity-70 border border-sage-border rounded-md px-3 py-1.5 text-sm"' : 'class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent"';
+            extraAttr += ` ${ro}`;
+          }
+
+          html += `<input type="${f.type}" ${extraAttr} name="${f.name}" value="${v}" ${trigger}>`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function handleUpdate(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('select-update-id').value);
+      const formData = new FormData(e.target);
+      const index = db.actas.findIndex(r => r.id_acta === id);
+
+      MODULE_SCHEMAS['actas'].fields.forEach(f => {
+        let val = formData.get(f.name);
+        if(f.type === 'number') val = Number(val);
+        db.actas[index][f.name] = val;
+      });
+
+      // Auto-validate logic at update
+      db.actas[index].acreditado = db.actas[index].calificacion_final >= 70 ? "Sí" : "No";
+
+      showToast(`Acta #${id} actualizada`);
+      setOperation('consultar');
+    }
+
+    // DELETE
+    function handleDelete() {
+      const id = Number(document.getElementById('select-delete-id').value);
+      if(!id) return;
+
+      db.actas = db.actas.filter(r => r.id_acta !== id);
+      showToast(`Acta #${id} eliminada`, 'error');
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    // ==========================================
+    // KARDEX LOGIC
+    // ==========================================
+    function populateKardexDropdown() {
+      const sel = document.getElementById('kardex-aspirante-select');
+      sel.innerHTML = `<option value="">-- Seleccionar Estudiante --</option>` +
+                      mockAspirantes.map(a => `<option value="${a.id_aspirante}">${a.nombre_completo}</option>`).join('');
+    }
+
+    function generarKardex() {
+      const id = parseInt(document.getElementById('kardex-aspirante-select').value);
+      if(!id) {
+          showToast("Seleccione un estudiante primero", "error");
+          return;
+      }
+
+      setConsoleCommand(`Consultas.generar_kardex(${id})`);
+      const resultsDiv = document.getElementById('kardex-results');
+      resultsDiv.classList.remove('hidden');
+
+      const student = mockAspirantes.find(a => a.id_aspirante === id);
+      document.getElementById('kx-nombre').innerText = student.nombre_completo;
+      document.getElementById('kx-matricula').innerText = `ID: ${student.id_aspirante}`;
+
+      // Examenes
+      const exams = mockExamenes.filter(e => e.id_aspirante === id);
+      let examHtml = '';
+      if(exams.length === 0) examHtml = `<tr><td colspan="4" class="px-3 py-4 text-center text-slate-400">Sin exámenes registrados</td></tr>`;
+      else {
+          exams.forEach(e => {
+              examHtml += `<tr>
+                <td class="px-3 py-2">${e.idioma}</td>
+                <td class="px-3 py-2 text-xs">${e.fecha_aplicacion}</td>
+                <td class="px-3 py-2 font-mono font-bold">${e.puntaje}</td>
+                <td class="px-3 py-2"><span class="px-2 py-0.5 bg-sage-bg border border-sage-border rounded text-[10px] font-semibold text-sage-accent">${e.nivel_asignado}</span></td>
+              </tr>`;
+          });
+      }
+      document.getElementById('kx-examenes-body').innerHTML = examHtml;
+
+      // Cursos (Actas linked through inscripciones)
+      const myInscriptions = mockInscripcionesConfirmadas.filter(i => i.id_aspirante === id);
+      const myActas = db.actas.filter(acta => myInscriptions.some(ins => acta.id_inscripcion.includes(ins.desc)));
+
+      let cursoHtml = '';
+      let highestPassedIndex = -1;
+
+      if(myActas.length === 0) cursoHtml = `<tr><td colspan="4" class="px-3 py-4 text-center text-slate-400">Sin cursos registrados</td></tr>`;
+      else {
+          myActas.forEach(acta => {
+              // Find the related inscription to get course name
+              const ins = myInscriptions.find(i => acta.id_inscripcion.includes(i.desc));
+              const courseName = ins ? ins.curso : "Desconocido";
+
+              // Extract Level from course name roughly (e.g. "Inglés A1" -> "A1")
+              const levelMatch = mcerLevels.find(l => courseName.includes(l));
+              if (acta.acreditado === 'Sí' && levelMatch) {
+                  const idx = mcerLevels.indexOf(levelMatch);
+                  if (idx > highestPassedIndex) highestPassedIndex = idx;
+              }
+
+              let color = acta.acreditado === 'Sí' ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold';
+              cursoHtml += `<tr>
+                <td class="px-3 py-2">${courseName}</td>
+                <td class="px-3 py-2 text-xs">${acta.fecha_cierre}</td>
+                <td class="px-3 py-2 text-center font-mono">${acta.calificacion_final}</td>
+                <td class="px-3 py-2 text-center ${color}">${acta.acreditado}</td>
+              </tr>`;
+          });
+      }
+      document.getElementById('kx-cursos-body').innerHTML = cursoHtml;
+
+      // Calculate Next Level Recommendation
+      let recommended = "A1 (Inicial)";
+
+      // 1. Check Placement Exams
+      let highestPlacementIdx = -1;
+      exams.forEach(e => {
+          const idx = mcerLevels.indexOf(e.nivel_asignado);
+          if (idx > highestPlacementIdx) highestPlacementIdx = idx;
+      });
+
+      // 2. Compare passed courses vs placement
+      let effectiveLevelIdx = Math.max(highestPassedIndex, highestPlacementIdx - 1); // Placement places you IN the level, passing places you PAST the level.
+
+      if (effectiveLevelIdx >= 0 && effectiveLevelIdx < mcerLevels.length - 1) {
+          recommended = mcerLevels[effectiveLevelIdx + 1];
+      } else if (effectiveLevelIdx === mcerLevels.length - 1) {
+          recommended = "C2 (Máximo)";
+      } else if (highestPlacementIdx >= 0) {
+          recommended = mcerLevels[highestPlacementIdx]; // From exam
+      }
+
+      document.getElementById('kx-recomendacion').innerText = recommended;
+      showToast(`Kárdex generado para ${student.nombre_completo}`);
+    }
+
+    // Utils
+    let tOut;
+    function showToast(msg, type='success') {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+
+      if(type==='success'){
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'check-circle');
+        document.getElementById('toast-icon').classList.replace('text-rose-400', 'text-emerald-400');
+      } else {
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-rose-900 border-rose-800 text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'alert-circle');
+        document.getElementById('toast-icon').classList.replace('text-emerald-400', 'text-rose-400');
+      }
+      lucide.createIcons();
+      clearTimeout(tOut);
+      tOut = setTimeout(()=> {
+        el.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(()=> el.classList.add('hidden'), 300);
+      }, 3500);
+    }
+
+    async function loadRefsFromBackend() {
+      try {
+        const [resAsp, resNiv] = await Promise.all([
+          fetch('/api/aspirantes/').then(r => r.json()),
+          fetch('/api/niveles/').then(r => r.json())
+        ]);
+
+        if (resAsp && resAsp.estado && Array.isArray(resAsp.registros) && resAsp.registros.length > 0) {
+          mockAspirantes.length = 0;
+          resAsp.registros.forEach(a => {
+            mockAspirantes.push({
+              id_aspirante: a.id_aspirante,
+              nombres: a.nombres,
+              apellido_paterno: a.apellido_paterno,
+              nombre_completo: `${a.nombres} ${a.apellido_paterno} ${a.apellido_materno || ''}`.trim()
+            });
+          });
+        }
+
+        if (resNiv && resNiv.estado && Array.isArray(resNiv.registros) && resNiv.registros.length > 0) {
+          mcerLevels.length = 0;
+          resNiv.registros.forEach(n => mcerLevels.push(n.codigo_mcer));
+        }
+      } catch (err) {
+        console.error('Error cargando referencias de Evaluación y Kárdex desde BD:', err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadRefsFromBackend();
+      updateBadges();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

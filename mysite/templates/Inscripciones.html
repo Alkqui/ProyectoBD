@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo de Matrícula - Inscripciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              bg: '#F6F7F4',
+              card: '#FFFFFF',
+              text: '#222B25',
+              subtext: '#667068',
+              border: '#DDE2DB',
+              accent: '#4F6F52',
+              hover: '#3A5A40',
+              light: '#E8EBE7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F6F7F4; color: #222B25; }
+    .clip-hex { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+    .honeycomb-wrapper { display: flex; flex-direction: column; align-items: center; gap: -14px; }
+    .honeycomb-row { display: flex; justify-content: center; gap: 16px; margin-bottom: -32px; }
+    @media (max-width: 768px) { .honeycomb-row { margin-bottom: -18px; gap: 8px; flex-wrap: wrap; } }
+    .hex-btn { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .hex-btn:hover { transform: translateY(-8px) scale(1.04); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F6F7F4; }
+    ::-webkit-scrollbar-thumb { background: #DDE2DB; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4F6F52; }
+
+    .crud-menu-btn { transition: all 0.2s; border-left: 3px solid transparent; }
+    .crud-menu-btn.active { background-color: #E8EBE7; border-left-color: #4F6F52; color: #222B25; font-weight: 600; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans selection:bg-sage-accent selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-sage-border bg-sage-card sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="showHoneycombView()">
+        <div class="w-10 h-10 rounded-xl bg-sage-accent flex items-center justify-center text-white shadow-md">
+          <i data-lucide="languages" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-sage-text flex items-center gap-1.5">
+            Centro de Idiomas
+          </span>
+          <p class="text-[10px] text-sage-subtext uppercase tracking-wider font-bold">Módulo de Matrícula</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sage-light border border-sage-border text-sage-text">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Sistema en Línea
+        </span>
+        <a href="/" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-text border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="home" class="w-4 h-4 text-sage-accent"></i> Menú Principal
+        </a>
+        <button onclick="showHoneycombView()" id="btn-back-home" class="hidden px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-accent border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i> Módulos
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-center relative">
+
+    <!-- VIEW 1: HONEYCOMB MENU -->
+    <section id="view-honeycomb" class="transition-all duration-500 ease-out flex flex-col items-center">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-sage-text tracking-tight">
+          Inscripciones
+        </h1>
+        <p class="mt-2 text-sm text-sage-subtext">
+          Registro, cobro y control del padrón de alumnos matriculados por grupo.
+        </p>
+      </div>
+
+      <div class="honeycomb-wrapper my-4">
+
+        <!-- Row 1: Centered Item -->
+        <div class="honeycomb-row">
+          <div onclick="selectModule('inscripciones')" class="hex-btn cursor-pointer group">
+            <div class="w-40 h-44 sm:w-48 sm:h-52 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="user-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text">Control de Inscripciones</h3>
+                <span class="mt-2 text-[10px] px-2.5 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-accent font-mono font-semibold" id="badge-inscripciones">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 2: CRUD WORKSPACE -->
+    <section id="view-crud" class="hidden transition-all duration-300 flex-1 flex flex-col">
+
+      <!-- Python Console Bar -->
+      <div class="bg-sage-text text-white text-xs font-mono p-2.5 rounded-t-xl flex items-center justify-between border-b border-sage-hover">
+        <div class="flex items-center gap-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+          <span>>>> <span id="python-console-cmd" class="text-emerald-300">Seleccionando submódulo...</span></span>
+        </div>
+        <span class="text-[10px] text-sage-subtext bg-sage-hover px-2 py-0.5 rounded">Backend Mock</span>
+      </div>
+
+      <div class="bg-sage-card border-x border-b border-sage-border rounded-b-xl shadow-sm flex flex-col md:flex-row overflow-hidden min-h-[600px]">
+
+        <!-- Left Sidebar: Submenu -->
+        <aside class="w-full md:w-64 border-r border-sage-border bg-sage-bg/50 p-4 flex flex-col">
+          <div class="flex items-center gap-3 mb-6 px-2">
+            <div class="w-8 h-8 rounded-lg bg-sage-accent text-white flex items-center justify-center shadow-sm">
+              <i id="module-icon" data-lucide="database" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 id="module-title" class="text-lg font-bold text-sage-text capitalize leading-tight">Módulo</h2>
+              <p id="module-subtitle" class="text-[10px] text-sage-subtext font-mono">Tabla: -</p>
+            </div>
+          </div>
+
+          <p class="text-[10px] font-bold tracking-wider text-sage-subtext uppercase mb-2 px-2">Operaciones CRUD</p>
+          <nav class="flex flex-col gap-1">
+            <button onclick="setOperation('crear')" id="btn-op-crear" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> 1. Inscribir
+            </button>
+            <button onclick="setOperation('consultar')" id="btn-op-consultar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="search" class="w-4 h-4"></i> 2. Consultar
+            </button>
+            <button onclick="setOperation('actualizar')" id="btn-op-actualizar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="edit-3" class="w-4 h-4"></i> 3. Actualizar
+            </button>
+            <button onclick="setOperation('eliminar')" id="btn-op-eliminar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> 4. Eliminar
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Right Content Area -->
+        <div class="flex-1 p-4 md:p-6 bg-sage-card">
+
+          <!-- PANEL 1: CREAR -->
+          <div id="panel-crear" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <div class="mb-5 flex justify-between items-center">
+              <div>
+                <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block">Nueva Inscripción</h3>
+                <p class="text-xs text-sage-subtext mt-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">crear(**datos)</code> calculando costo con descuento.</p>
+              </div>
+            </div>
+            <form id="form-crear" onsubmit="handleCreate(event)" class="space-y-4">
+              <div id="fields-crear" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+              <!-- Formula Helper Visual -->
+              <div class="col-span-1 sm:col-span-2 bg-sage-bg p-3 rounded-lg border border-sage-border mt-4 flex items-start gap-3">
+                <i data-lucide="calculator" class="w-5 h-5 text-sage-accent mt-0.5"></i>
+                <div class="text-xs text-sage-subtext">
+                  <strong class="text-sage-text block mb-1">Cálculo Automático:</strong>
+                  <code>costo_aplicado = costo_base × (1 - (porcentaje_descuento / 100))</code><br>
+                  <em>* Se aplica el descuento asociado al tipo de aspirante seleccionado.</em>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-sage-border text-right">
+                <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                  <i data-lucide="save" class="w-4 h-4"></i> Procesar Inscripción
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PANEL 2: CONSULTAR -->
+          <div id="panel-consultar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4">Listado de Inscripciones</h3>
+
+            <div class="flex justify-between items-end mb-4">
+              <div>
+                <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Búsqueda General:</label>
+                <div class="relative w-64">
+                  <i data-lucide="search" class="w-4 h-4 text-sage-subtext absolute left-3 top-2"></i>
+                  <input type="text" id="table-search" onkeyup="renderTable()" placeholder="Folio, aspirante, grupo..." class="w-full bg-white border border-sage-border rounded-md pl-9 pr-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+                </div>
+              </div>
+              <span id="table-count" class="text-xs font-mono text-sage-subtext">0 regs</span>
+            </div>
+
+            <div class="overflow-x-auto border border-sage-border rounded-lg shadow-sm">
+              <table class="w-full text-left text-sm text-sage-text divide-y divide-sage-border">
+                <thead class="bg-sage-light text-sage-subtext font-semibold uppercase tracking-wider text-[10px]" id="table-head"></thead>
+                <tbody class="divide-y divide-sage-border bg-white" id="table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PANEL 3: ACTUALIZAR -->
+          <div id="panel-actualizar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4">Actualizar Registro</h3>
+
+            <div class="mb-6 p-4 bg-sage-bg border border-sage-border rounded-xl">
+              <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Folio de Inscripción:</label>
+              <select id="select-update-id" onchange="loadUpdateData()" class="w-full sm:w-64 bg-white border border-sage-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-sage-accent font-mono">
+                <option value="">-- Seleccionar --</option>
+              </select>
+            </div>
+
+            <div id="update-workspace" class="hidden">
+              <div class="flex border-b border-sage-border mb-4">
+                <button onclick="switchUpdateTab('completo')" id="btn-utab-completo" class="px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent">Detalle de Inscripción</button>
+                <button onclick="switchUpdateTab('estado')" id="btn-utab-estado" class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text">Cambio de Estatus</button>
+              </div>
+
+              <form id="form-update-completo" onsubmit="handleUpdate(event)" class="space-y-4">
+                <p class="text-xs text-sage-subtext mb-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">actualizar(id, **datos)</code></p>
+                <div id="fields-actualizar" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div class="pt-4 border-t border-sage-border text-right">
+                  <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="check" class="w-4 h-4"></i> Guardar Cambios
+                  </button>
+                </div>
+              </form>
+
+              <form id="form-update-estado" onsubmit="handleChangeState(event)" class="hidden space-y-4">
+                <p id="lbl-metodo-estado" class="text-xs text-sage-subtext mb-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">cambiar_estado(id, nuevo_estatus)</code></p>
+                <div class="max-w-xs">
+                  <label class="text-xs font-semibold text-sage-text mb-1 block">Estatus de Inscripción:</label>
+                  <select id="select-fast-state" name="nuevo_estado" class="w-full bg-white border border-sage-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-sage-accent">
+                    <!-- Options populated dynamically -->
+                  </select>
+                </div>
+                <div class="pt-4 text-left">
+                  <button type="submit" class="px-4 py-2 bg-sage-text hover:bg-black text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Confirmar Estatus
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- PANEL 4: ELIMINAR -->
+          <div id="panel-eliminar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-rose-500 pb-1 inline-block mb-4">Anular Inscripción</h3>
+            <p class="text-xs text-sage-subtext mb-4">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">eliminar(id)</code></p>
+
+            <div class="p-6 bg-[#FFF1F1] border border-[#FAD2D2] rounded-xl flex flex-col sm:flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-bold text-[#C84B4B] mb-1">Eliminación Física</h4>
+                <p class="text-xs text-rose-700/80 mb-3">Borra el registro de la base de datos. Para mantener historial, prefiere cambiar el estatus a "Baja" desde la pestaña Actualizar.</p>
+                <div class="flex gap-2 max-w-sm">
+                  <select id="select-delete-id" class="flex-1 bg-white border border-rose-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-rose-400 font-mono text-rose-900">
+                    <option value="">-- Seleccionar Folio --</option>
+                  </select>
+                  <button onclick="handleDelete()" class="px-4 py-2 bg-[#C84B4B] hover:bg-rose-700 text-white font-bold text-sm rounded-md shadow-sm transition">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden transform transition-all duration-300 ease-out translate-y-4 opacity-0 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white">
+    <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-400"></i>
+    <span id="toast-msg" class="text-sm font-medium"></span>
+  </div>
+
+  <script>
+    // Referencias / Tablas Maestras
+    const dbRefs = {
+      aspirantes: [
+        { id: 1, text: "1 - Luis Pérez (Público Gral)", descuento: 0 },
+        { id: 2, text: "2 - Ana García (Comunidad Inst.)", descuento: 20 },
+        { id: 3, text: "3 - Carlos Ruiz (Beca Esp.)", descuento: 50 }
+      ],
+      grupos: [
+        { id: 101, text: "101 - ING-A1-26B (Activo)", estatus: "Activo", costoBase: 1500, cupo: 20 },
+        { id: 102, text: "102 - FRA-B1-26B (En espera)", estatus: "En espera", costoBase: 1800, cupo: 15 },
+        { id: 103, text: "103 - ITA-A2-26B (Cerrado)", estatus: "Cerrado", costoBase: 1200, cupo: 20 }
+      ],
+      personal: [
+        { id: 501, text: "501 - Administrador A." },
+        { id: 502, text: "502 - Asistente Escolar B." }
+      ],
+      estatus_inscripcion: ["Pendiente", "Confirmada", "Baja"]
+    };
+
+    const MODULE_SCHEMAS = {
+      inscripciones: {
+        name: "Registro de Inscripciones", class: "CrudInscripciones", table: "inscripciones", icon: "user-check", primaryKey: "id_inscripcion", stateField: "estatus_inscripcion",
+        fields: [
+          { name: "id_inscripcion", label: "Folio Inscripción", type: "number", required: true, isKey: true },
+          { name: "id_aspirante", label: "Aspirante", type: "select", options: dbRefs.aspirantes.map(a => a.text), required: true, calcTrigger: true },
+          { name: "id_grupo", label: "Grupo Solicitado", type: "select", options: dbRefs.grupos.map(g => g.text), required: true, calcTrigger: true },
+          { name: "costo_aplicado", label: "Costo Calculado ($)", type: "number", required: true, step: "0.01", readonly: true, placeholder: "Se calcula automático" },
+          { name: "id_personal", label: "Personal de Registro", type: "select", options: dbRefs.personal.map(p => p.text), required: true },
+          { name: "estatus_inscripcion", label: "Estatus del Trámite", type: "select", options: dbRefs.estatus_inscripcion, required: true }
+        ]
+      }
+    };
+
+    // Initial Mock DB
+    let db = {
+      inscripciones: [
+        { id_inscripcion: 10001, id_aspirante: "1 - Luis Pérez (Público Gral)", id_grupo: "101 - ING-A1-26B (Activo)", costo_aplicado: 1500.00, id_personal: "501 - Administrador A.", estatus_inscripcion: "Confirmada" }
+      ]
+    };
+
+    let currentModule = null;
+
+    function updateBadges() {
+      for (const mod in db) {
+        const badge = document.getElementById(`badge-${mod}`);
+        if (badge) badge.innerText = db[mod].length;
+      }
+    }
+
+    function showHoneycombView() {
+      document.getElementById('view-honeycomb').classList.remove('hidden');
+      document.getElementById('view-crud').classList.add('hidden');
+      document.getElementById('btn-back-home').classList.add('hidden');
+      currentModule = null;
+      updateBadges();
+      lucide.createIcons();
+    }
+
+    function selectModule(moduleKey) {
+      currentModule = moduleKey;
+      const schema = MODULE_SCHEMAS[moduleKey];
+
+      document.getElementById('module-title').innerText = schema.name;
+      document.getElementById('module-subtitle').innerText = `Tabla: ${schema.table}`;
+      document.getElementById('module-icon').setAttribute('data-lucide', schema.icon);
+
+      document.getElementById('view-honeycomb').classList.add('hidden');
+      document.getElementById('view-crud').classList.remove('hidden');
+      document.getElementById('btn-back-home').classList.remove('hidden');
+
+      setOperation('consultar');
+      lucide.createIcons();
+    }
+
+    function setConsoleCommand(cmd) {
+      document.getElementById('python-console-cmd').innerText = cmd;
+    }
+
+    function setOperation(op) {
+      ['crear', 'consultar', 'actualizar', 'eliminar'].forEach(o => {
+        document.getElementById(`btn-op-${o}`).classList.remove('active');
+        document.getElementById(`panel-${o}`).classList.add('hidden');
+      });
+      document.getElementById(`btn-op-${op}`).classList.add('active');
+      document.getElementById(`panel-${op}`).classList.remove('hidden');
+
+      const schema = MODULE_SCHEMAS[currentModule];
+
+      if (op === 'crear') {
+        setConsoleCommand(`${schema.class}.crear(**datos)`);
+        buildCreateForm();
+      } else if (op === 'consultar') {
+        setConsoleCommand(`${schema.class}.consultar_todos()`);
+        document.getElementById('table-search').value = '';
+        renderTable();
+      } else if (op === 'actualizar') {
+        setConsoleCommand(`${schema.class}.actualizar(id, **datos)`);
+        populateIdSelectors('select-update-id');
+        document.getElementById('update-workspace').classList.add('hidden');
+        document.getElementById('select-update-id').value = '';
+        switchUpdateTab('completo');
+      } else if (op === 'eliminar') {
+        setConsoleCommand(`${schema.class}.eliminar(id)`);
+        populateIdSelectors('select-delete-id');
+      }
+    }
+
+    // Dynamic Cost Calculation Logic
+    function calculateCost() {
+      if (currentModule !== 'inscripciones') return;
+
+      // Determine context (crear form or update form)
+      const visibleForm = document.getElementById('panel-crear').classList.contains('hidden') ?
+                          document.getElementById('form-update-completo') :
+                          document.getElementById('form-crear');
+
+      const selAsp = visibleForm.querySelector('select[name="id_aspirante"]');
+      const selGrp = visibleForm.querySelector('select[name="id_grupo"]');
+      const inCost = visibleForm.querySelector('input[name="costo_aplicado"]');
+
+      if (!selAsp || !selGrp || !inCost) return;
+
+      const aspVal = selAsp.value;
+      const grpVal = selGrp.value;
+
+      if (aspVal && grpVal) {
+        // Extract raw IDs from formatted string "ID - Text"
+        const aspIdStr = aspVal.split(' - ')[0];
+        const grpIdStr = grpVal.split(' - ')[0];
+
+        const aspirante = dbRefs.aspirantes.find(a => a.id == aspIdStr);
+        const grupo = dbRefs.grupos.find(g => g.id == grpIdStr);
+
+        if (aspirante && grupo) {
+          const cBase = grupo.costoBase;
+          const desc = aspirante.descuento;
+          // Mathematical formula applied
+          const cAplicado = cBase * (1 - (desc / 100));
+          inCost.value = cAplicado.toFixed(2);
+        } else {
+          inCost.value = "";
+        }
+      } else {
+        inCost.value = "";
+      }
+    }
+
+    // CREATE
+    function buildCreateForm() {
+      const schema = MODULE_SCHEMAS[currentModule];
+      const container = document.getElementById('fields-crear');
+      let html = '';
+      schema.fields.forEach(f => {
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label} ${f.required?'<span class="text-rose-500">*</span>':''}</label>`;
+
+        let req = f.required ? 'required' : '';
+        let trigger = f.calcTrigger ? 'onchange="calculateCost()"' : '';
+
+        if (f.type === 'select') {
+          html += `<select name="${f.name}" ${req} ${trigger} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+            <option value="">-- Seleccionar --</option>
+            ${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>`;
+        } else {
+          let extraAttr = '';
+          if(f.readonly) extraAttr += ` readonly class="bg-sage-bg opacity-80 cursor-not-allowed border border-sage-border rounded-md px-3 py-1.5 text-sm font-bold text-sage-accent"`;
+          else extraAttr += ` class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent placeholder-slate-300"`;
+
+          if(f.step) extraAttr += ` step="${f.step}"`;
+          if(f.placeholder) extraAttr += ` placeholder="${f.placeholder}"`;
+
+          html += `<input type="${f.type}" name="${f.name}" ${req} ${extraAttr}>`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    // Validations (Group status, capacity, duplicates)
+    function runBusinessValidations(newRec, excludeId = null) {
+      if (currentModule !== 'inscripciones') return true;
+
+      const grpIdStr = newRec.id_grupo.split(' - ')[0];
+      const grupo = dbRefs.grupos.find(g => g.id == grpIdStr);
+
+      // 1. Group Status Check
+      if (grupo && (grupo.estatus !== 'Activo' && grupo.estatus !== 'En espera')) {
+        showToast(`El grupo seleccionado se encuentra "${grupo.estatus}" y no admite nuevas inscripciones.`, "error");
+        return false;
+      }
+
+      // 2. Capacity Check
+      // Count enrolled active (not 'Baja')
+      const enrolledCount = db.inscripciones.filter(i => {
+        if (excludeId && i.id_inscripcion === excludeId) return false;
+        return i.id_grupo.startsWith(grpIdStr + " -") && i.estatus_inscripcion !== 'Baja';
+      }).length;
+
+      if (grupo && enrolledCount >= grupo.cupo) {
+        showToast(`El grupo ha alcanzado su cupo máximo (${grupo.cupo} alumnos).`, "error");
+        return false;
+      }
+
+      // 3. Duplicate Enrollment
+      const isDuplicate = db.inscripciones.some(i => {
+        if (excludeId && i.id_inscripcion === excludeId) return false;
+        return i.id_aspirante === newRec.id_aspirante && i.id_grupo === newRec.id_grupo && i.estatus_inscripcion !== 'Baja';
+      });
+
+      if (isDuplicate) {
+        showToast("El alumno ya cuenta con una inscripción activa en este grupo.", "error");
+        return false;
+      }
+
+      return true;
+    }
+
+    function handleCreate(e) {
+      e.preventDefault();
+      const schema = MODULE_SCHEMAS[currentModule];
+      const formData = new FormData(e.target);
+      const newRec = {};
+      schema.fields.forEach(f => {
+        let val = formData.get(f.name);
+        if(f.type === 'number') val = Number(val);
+        newRec[f.name] = val;
+      });
+
+      const pk = schema.primaryKey;
+      if (db[currentModule].some(r => r[pk] === newRec[pk])) {
+        showToast(`El Folio ${newRec[pk]} ya existe`, 'error');
+        return;
+      }
+
+      // Validations
+      if (!runBusinessValidations(newRec)) return;
+
+      db[currentModule].push(newRec);
+      showToast(`Inscripción registrada exitosamente.`);
+      e.target.reset();
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    // READ
+    function renderTable() {
+      const schema = MODULE_SCHEMAS[currentModule];
+      const data = db[currentModule];
+      const search = (document.getElementById('table-search').value || '').toLowerCase();
+
+      let head = '<tr>';
+      schema.fields.forEach(f => head += `<th class="px-3 py-2 whitespace-nowrap">${f.label}</th>`);
+      head += '</tr>';
+      document.getElementById('table-head').innerHTML = head;
+
+      const filtered = data.filter(r => {
+        return Object.values(r).some(v => String(v).toLowerCase().includes(search));
+      });
+
+      document.getElementById('table-count').innerText = `${filtered.length} regs`;
+
+      if (filtered.length === 0) {
+        document.getElementById('table-body').innerHTML = `<tr><td colspan="6" class="px-3 py-6 text-center text-xs text-sage-subtext">No se encontraron inscripciones.</td></tr>`;
+        return;
+      }
+
+      let body = '';
+      filtered.forEach(item => {
+        body += `<tr class="hover:bg-sage-bg/50 transition">`;
+        schema.fields.forEach(f => {
+          let v = item[f.name];
+          if(f.name === 'estatus_inscripcion') {
+            let color = v === 'Confirmada' ? 'bg-sage-light text-sage-text border-sage-border'
+                      : v === 'Pendiente' ? 'bg-amber-100 text-amber-800 border-amber-200'
+                      : 'bg-rose-100 text-rose-800 border-rose-200';
+            body += `<td class="px-3 py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${color} border">${v}</span></td>`;
+          } else if(f.isKey) {
+            body += `<td class="px-3 py-2 font-mono font-bold text-sage-accent">#${v}</td>`;
+          } else if(f.name === 'costo_aplicado') {
+            body += `<td class="px-3 py-2 font-mono text-sage-accent font-semibold">$${v.toFixed(2)}</td>`;
+          } else {
+            body += `<td class="px-3 py-2 text-xs truncate max-w-[150px]" title="${v}">${v}</td>`;
+          }
+        });
+        body += `</tr>`;
+      });
+      document.getElementById('table-body').innerHTML = body;
+    }
+
+    // UPDATE
+    function populateIdSelectors(elemId) {
+      const sel = document.getElementById(elemId);
+      const pk = MODULE_SCHEMAS[currentModule].primaryKey;
+      let html = `<option value="">-- Seleccionar Folio --</option>`;
+      db[currentModule].forEach(r => {
+        html += `<option value="${r[pk]}">Folio #${r[pk]} - ${r.id_aspirante.split(' - ')[1]}</option>`;
+      });
+      sel.innerHTML = html;
+    }
+
+    function loadUpdateData() {
+      const id = document.getElementById('select-update-id').value;
+      const ws = document.getElementById('update-workspace');
+      if (!id) { ws.classList.add('hidden'); return; }
+
+      ws.classList.remove('hidden');
+      const schema = MODULE_SCHEMAS[currentModule];
+      const record = db[currentModule].find(r => r[schema.primaryKey] == id);
+
+      // Fields Full
+      const container = document.getElementById('fields-actualizar');
+      let html = '';
+      schema.fields.forEach(f => {
+        const v = record[f.name] || '';
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label}</label>`;
+
+        let trigger = f.calcTrigger ? 'onchange="calculateCost()"' : '';
+
+        if (f.type === 'select') {
+          html += `<select name="${f.name}" ${trigger} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent">
+            ${f.options.map(o => `<option value="${o}" ${o==v?'selected':''}>${o}</option>`).join('')}
+          </select>`;
+        } else {
+          let extraAttr = '';
+          if(f.readonly) extraAttr += ` readonly class="bg-sage-bg opacity-80 cursor-not-allowed border border-sage-border rounded-md px-3 py-1.5 text-sm font-bold text-sage-accent"`;
+          else extraAttr += ` class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent"`;
+          if(f.step) extraAttr += ` step="${f.step}"`;
+
+          html += `<input type="${f.type}" ${extraAttr} name="${f.name}" value="${v}">`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+
+      // Fields Fast State
+      const stSel = document.getElementById('select-fast-state');
+      stSel.innerHTML = dbRefs.estatus_inscripcion.map(o => `<option value="${o}" ${o==record.estatus_inscripcion?'selected':''}>${o}</option>`).join('');
+    }
+
+    function switchUpdateTab(tab) {
+      if(tab==='completo') {
+        document.getElementById('btn-utab-completo').className = "px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent";
+        document.getElementById('btn-utab-estado').className = "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text";
+        document.getElementById('form-update-completo').classList.remove('hidden');
+        document.getElementById('form-update-estado').classList.add('hidden');
+
+        const id = document.getElementById('select-update-id').value;
+        setConsoleCommand(`CrudInscripciones.actualizar(${id || 'id'}, **datos)`);
+      } else {
+        document.getElementById('btn-utab-estado').className = "px-4 py-2 text-sm font-semibold border-b-2 border-sage-accent text-sage-accent";
+        document.getElementById('btn-utab-completo').className = "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-sage-subtext hover:text-sage-text";
+        document.getElementById('form-update-estado').classList.remove('hidden');
+        document.getElementById('form-update-completo').classList.add('hidden');
+
+        const id = document.getElementById('select-update-id').value;
+        setConsoleCommand(`CrudInscripciones.cambiar_estado(${id || 'id'}, nuevo_estatus)`);
+      }
+    }
+
+    function handleUpdate(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('select-update-id').value);
+      const schema = MODULE_SCHEMAS[currentModule];
+      const formData = new FormData(e.target);
+      const index = db[currentModule].findIndex(r => r[schema.primaryKey] === id);
+
+      const updatedRec = {};
+      schema.fields.forEach(f => {
+        let val = formData.get(f.name);
+        if(f.type === 'number') val = Number(val);
+        updatedRec[f.name] = val;
+      });
+
+      // Validations (Exclude self for duplicate/capacity check)
+      if (!runBusinessValidations(updatedRec, id)) return;
+
+      db[currentModule][index] = updatedRec;
+      showToast(`Inscripción #${id} actualizada`);
+      setOperation('consultar');
+    }
+
+    function handleChangeState(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('select-update-id').value);
+      const schema = MODULE_SCHEMAS[currentModule];
+      const nv = document.getElementById('select-fast-state').value;
+      const index = db[currentModule].findIndex(r => r[schema.primaryKey] === id);
+
+      db[currentModule][index][schema.stateField] = nv;
+      showToast(`Estatus de Inscripción #${id} cambiado a ${nv}`);
+      setOperation('consultar');
+    }
+
+    // DELETE
+    function handleDelete() {
+      const id = Number(document.getElementById('select-delete-id').value);
+      if(!id) return;
+      const schema = MODULE_SCHEMAS[currentModule];
+      db[currentModule] = db[currentModule].filter(r => r[schema.primaryKey] !== id);
+      showToast(`Registro de Inscripción #${id} eliminado`, 'error');
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    let tOut;
+    function showToast(msg, type='success') {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+
+      if(type==='success'){
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'check-circle');
+        document.getElementById('toast-icon').classList.replace('text-rose-400', 'text-emerald-400');
+      } else {
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-rose-900 border-rose-800 text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'alert-circle');
+        document.getElementById('toast-icon').classList.replace('text-emerald-400', 'text-rose-400');
+      }
+      lucide.createIcons();
+      clearTimeout(tOut);
+      tOut = setTimeout(()=> {
+        el.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(()=> el.classList.add('hidden'), 300);
+      }, 3500);
+    }
+
+    async function loadRefsFromBackend() {
+      try {
+        const [resAsp, resTipos, resGrp, resCur, resPer] = await Promise.all([
+          fetch('/api/aspirantes/').then(r => r.json()),
+          fetch('/api/tipos_aspirante/').then(r => r.json()),
+          fetch('/api/grupos/').then(r => r.json()),
+          fetch('/api/cursos/').then(r => r.json()),
+          fetch('/api/personal/').then(r => r.json())
+        ]);
+
+        const descPorTipo = {};
+        const nomPorTipo = {};
+        if (resTipos && resTipos.estado && Array.isArray(resTipos.registros)) {
+          resTipos.registros.forEach(t => {
+            descPorTipo[t.id_tipo_aspirante] = Number(t.porcentaje_descuento || 0);
+            nomPorTipo[t.id_tipo_aspirante] = t.nombre_tipo;
+          });
+        }
+
+        if (resAsp && resAsp.estado && Array.isArray(resAsp.registros)) {
+          dbRefs.aspirantes = resAsp.registros.map(a => {
+            const desc = descPorTipo[a.id_tipo_aspirante] ?? 0;
+            const tipoNom = nomPorTipo[a.id_tipo_aspirante] || a.tipo_aspirante || 'General';
+            return {
+              id: a.id_aspirante,
+              text: `${a.id_aspirante} - ${a.nombres} ${a.apellido_paterno} (${tipoNom})`,
+              descuento: desc
+            };
+          });
+          MODULE_SCHEMAS.inscripciones.fields.find(f => f.name === 'id_aspirante').options = dbRefs.aspirantes.map(a => a.text);
+        }
+
+        const costoPorCurso = {};
+        if (resCur && resCur.estado && Array.isArray(resCur.registros)) {
+          resCur.registros.forEach(c => {
+            costoPorCurso[c.id_curso] = Number(c.costo_base || 0);
+          });
+        }
+
+        if (resGrp && resGrp.estado && Array.isArray(resGrp.registros)) {
+          dbRefs.grupos = resGrp.registros.map(g => {
+            const est = g.estatus || 'Activo';
+            const cBase = costoPorCurso[g.id_curso] ?? 1500;
+            return {
+              id: g.id_grupo,
+              text: `${g.id_grupo} - ${g.codigo_grupo} (${est})`,
+              estatus: est,
+              costoBase: cBase,
+              cupo: Number(g.cupo_maximo || 25)
+            };
+          });
+          MODULE_SCHEMAS.inscripciones.fields.find(f => f.name === 'id_grupo').options = dbRefs.grupos.map(g => g.text);
+        }
+
+        if (resPer && resPer.estado && Array.isArray(resPer.registros)) {
+          dbRefs.personal = resPer.registros.map(p => ({
+            id: p.id_personal,
+            text: `${p.id_personal} - ${p.nombres} ${p.apellido_paterno}`
+          }));
+          MODULE_SCHEMAS.inscripciones.fields.find(f => f.name === 'id_personal').options = dbRefs.personal.map(p => p.text);
+        }
+      } catch (err) {
+        console.error('Error cargando referencias de Inscripciones desde BD:', err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadRefsFromBackend();
+      updateBadges();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

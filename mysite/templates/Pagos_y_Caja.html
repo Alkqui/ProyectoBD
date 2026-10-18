@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo Financiero - Pagos y Caja</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              bg: '#F6F7F4',
+              card: '#FFFFFF',
+              text: '#222B25',
+              subtext: '#667068',
+              border: '#DDE2DB',
+              accent: '#4F6F52',
+              hover: '#3A5A40',
+              light: '#E8EBE7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F6F7F4; color: #222B25; }
+    .clip-hex { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+    .honeycomb-wrapper { display: flex; flex-direction: column; align-items: center; gap: -14px; }
+    .honeycomb-row { display: flex; justify-content: center; gap: 16px; margin-bottom: -32px; }
+    @media (max-width: 768px) { .honeycomb-row { margin-bottom: -18px; gap: 8px; flex-wrap: wrap; } }
+    .hex-btn { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .hex-btn:hover { transform: translateY(-8px) scale(1.04); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F6F7F4; }
+    ::-webkit-scrollbar-thumb { background: #DDE2DB; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4F6F52; }
+
+    .crud-menu-btn { transition: all 0.2s; border-left: 3px solid transparent; }
+    .crud-menu-btn.active { background-color: #E8EBE7; border-left-color: #4F6F52; color: #222B25; font-weight: 600; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans selection:bg-sage-accent selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-sage-border bg-sage-card sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="showHoneycombView()">
+        <div class="w-10 h-10 rounded-xl bg-sage-accent flex items-center justify-center text-white shadow-md">
+          <i data-lucide="languages" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-sage-text flex items-center gap-1.5">
+            Centro de Idiomas
+          </span>
+          <p class="text-[10px] text-sage-subtext uppercase tracking-wider font-bold">Módulo Financiero</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sage-light border border-sage-border text-sage-text">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Sistema en Línea
+        </span>
+        <a href="/" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-text border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="home" class="w-4 h-4 text-sage-accent"></i> Menú Principal
+        </a>
+        <button onclick="showHoneycombView()" id="btn-back-home" class="hidden px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sage-card hover:bg-sage-light text-sage-accent border border-sage-border transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i> Módulos
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-center relative">
+
+    <!-- VIEW 1: HONEYCOMB MENU -->
+    <section id="view-honeycomb" class="transition-all duration-500 ease-out flex flex-col items-center">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-sage-text tracking-tight">
+          Pagos y Caja
+        </h1>
+        <p class="mt-2 text-sm text-sage-subtext">
+          Registro de pagos, captura de comprobantes y validación financiera.
+        </p>
+      </div>
+
+      <div class="honeycomb-wrapper my-4">
+
+        <!-- Row 1: 2 items centered -->
+        <div class="honeycomb-row">
+          <div onclick="selectModule('pagos')" class="hex-btn cursor-pointer group">
+            <div class="w-40 h-44 sm:w-48 sm:h-52 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="credit-card" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text">Registro de Pagos</h3>
+                <span class="mt-2 text-[10px] px-2.5 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-accent font-mono font-semibold" id="badge-pagos">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div onclick="selectModule('validacion')" class="hex-btn cursor-pointer group">
+            <div class="w-40 h-44 sm:w-48 sm:h-52 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600 mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="check-square" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text">Bandeja de Validación</h3>
+                <span class="mt-2 text-[10px] px-2.5 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-accent font-mono font-semibold" id="badge-validacion">0 Pendientes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 2: CRUD WORKSPACE -->
+    <section id="view-crud" class="hidden transition-all duration-300 flex-1 flex flex-col">
+
+      <!-- Python Console Bar -->
+      <div class="bg-sage-text text-white text-xs font-mono p-2.5 rounded-t-xl flex items-center justify-between border-b border-sage-hover">
+        <div class="flex items-center gap-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+          <span>>>> <span id="python-console-cmd" class="text-emerald-300">Seleccionando submódulo...</span></span>
+        </div>
+        <span class="text-[10px] text-sage-subtext bg-sage-hover px-2 py-0.5 rounded">Backend Mock</span>
+      </div>
+
+      <div class="bg-sage-card border-x border-b border-sage-border rounded-b-xl shadow-sm flex flex-col md:flex-row overflow-hidden min-h-[600px]">
+
+        <!-- Left Sidebar: Submenu -->
+        <aside class="w-full md:w-64 border-r border-sage-border bg-sage-bg/50 p-4 flex flex-col">
+          <div class="flex items-center gap-3 mb-6 px-2">
+            <div class="w-8 h-8 rounded-lg bg-sage-accent text-white flex items-center justify-center shadow-sm">
+              <i id="module-icon" data-lucide="database" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 id="module-title" class="text-lg font-bold text-sage-text capitalize leading-tight">Módulo</h2>
+              <p id="module-subtitle" class="text-[10px] text-sage-subtext font-mono">Tabla: -</p>
+            </div>
+          </div>
+
+          <p class="text-[10px] font-bold tracking-wider text-sage-subtext uppercase mb-2 px-2">Operaciones</p>
+          <nav class="flex flex-col gap-1" id="nav-operations">
+            <!-- Populated dynamically based on module -->
+          </nav>
+        </aside>
+
+        <!-- Right Content Area -->
+        <div class="flex-1 p-4 md:p-6 bg-sage-card">
+
+          <!-- PANEL 1: CREAR (Solo para Pagos) -->
+          <div id="panel-crear" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <div class="mb-5 flex justify-between items-center">
+              <div>
+                <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block">Registrar Nuevo Pago</h3>
+                <p class="text-xs text-sage-subtext mt-2">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">crear(**datos)</code> Estatus inicial automático: 'Pendiente'</p>
+              </div>
+            </div>
+            <form id="form-crear" onsubmit="handleCreate(event)" class="space-y-4">
+              <div id="fields-crear" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+              <div class="pt-4 border-t border-sage-border text-right">
+                <button type="submit" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                  <i data-lucide="save" class="w-4 h-4"></i> Guardar Pago
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PANEL 2: CONSULTAR -->
+          <div id="panel-consultar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4" id="title-consultar">Listado de Pagos</h3>
+
+            <div class="flex justify-between items-end mb-4">
+              <div>
+                <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Búsqueda General:</label>
+                <div class="relative w-72">
+                  <i data-lucide="search" class="w-4 h-4 text-sage-subtext absolute left-3 top-2"></i>
+                  <input type="text" id="table-search" onkeyup="renderTable()" placeholder="Folio, inscripción, estatus..." class="w-full bg-white border border-sage-border rounded-md pl-9 pr-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+                </div>
+              </div>
+              <span id="table-count" class="text-xs font-mono text-sage-subtext">0 regs</span>
+            </div>
+
+            <div class="overflow-x-auto border border-sage-border rounded-lg shadow-sm">
+              <table class="w-full text-left text-sm text-sage-text divide-y divide-sage-border">
+                <thead class="bg-sage-light text-sage-subtext font-semibold uppercase tracking-wider text-[10px]" id="table-head"></thead>
+                <tbody class="divide-y divide-sage-border bg-white" id="table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PANEL 3: ACTUALIZAR / VALIDAR -->
+          <div id="panel-actualizar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-sage-accent pb-1 inline-block mb-4" id="title-actualizar">Editar Registro</h3>
+
+            <div class="mb-6 p-4 bg-sage-bg border border-sage-border rounded-xl">
+              <label class="text-[10px] font-bold text-sage-subtext uppercase block mb-1">Seleccionar Pago (ID - Folio):</label>
+              <select id="select-update-id" onchange="loadUpdateData()" class="w-full sm:w-64 bg-white border border-sage-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-sage-accent font-mono">
+                <option value="">-- Seleccionar --</option>
+              </select>
+            </div>
+
+            <div id="update-workspace" class="hidden">
+
+              <!-- Form Edición Pagos -->
+              <form id="form-update-completo" onsubmit="handleUpdate(event)" class="space-y-4">
+                <p class="text-xs text-amber-600 font-medium mb-4 bg-amber-50 p-2 rounded border border-amber-200"><i data-lucide="info" class="w-4 h-4 inline mr-1"></i>Solo es posible editar los datos básicos del pago si su estatus es 'Pendiente'.</p>
+                <div id="fields-actualizar" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div class="pt-4 border-t border-sage-border text-right">
+                  <button type="submit" id="btn-submit-update" class="px-5 py-2.5 bg-sage-accent hover:bg-sage-hover text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="check" class="w-4 h-4"></i> Guardar Cambios
+                  </button>
+                </div>
+              </form>
+
+              <!-- Form Validación y Conciliación -->
+              <form id="form-validacion" onsubmit="handleValidation(event)" class="hidden space-y-4">
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
+                  <h4 class="text-xs font-bold text-slate-700 uppercase mb-2">Detalles del Pago a Validar</h4>
+                  <div id="val-pago-details" class="text-sm text-slate-600 grid grid-cols-2 gap-2 font-mono text-[11px]"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-sage-subtext uppercase mb-1">Decisión de Validación <span class="text-rose-500">*</span></label>
+                    <select id="val-decision" name="estatus_validacion" required onchange="toggleRechazo()" class="w-full bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+                      <option value="">-- Seleccione Acción --</option>
+                      <option value="Validado">Aprobar / Validado</option>
+                      <option value="Rechazado">Rechazar Pago</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-sage-subtext uppercase mb-1">Personal Validador <span class="text-rose-500">*</span></label>
+                    <select name="id_personal" required class="w-full bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent" id="val-personal">
+                      <!-- Populated dynamically -->
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-sage-subtext uppercase mb-1">Fecha de Validación <span class="text-rose-500">*</span></label>
+                    <input type="date" name="fecha_validacion" id="val-fecha" required class="w-full bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+                    <p class="text-[9px] text-sage-subtext mt-0.5">Debe ser &ge; a la fecha del pago.</p>
+                  </div>
+                  <div class="col-span-1 sm:col-span-2 hidden" id="box-observaciones">
+                    <label class="block text-xs font-bold text-rose-600 uppercase mb-1">Motivo de Rechazo <span class="text-rose-500">*</span></label>
+                    <textarea name="observaciones" id="val-obs" rows="2" class="w-full bg-rose-50 border border-rose-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-rose-400 placeholder-rose-300" placeholder="Especifique por qué se rechaza el comprobante..."></textarea>
+                  </div>
+                </div>
+
+                <div class="pt-4 border-t border-sage-border text-right">
+                  <button type="submit" class="px-5 py-2.5 bg-sage-text hover:bg-black text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-2 inline-flex">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i> Procesar Validación
+                  </button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+
+          <!-- PANEL 4: ELIMINAR -->
+          <div id="panel-eliminar" class="hidden animate-in fade-in slide-in-from-right-4 duration-300">
+            <h3 class="text-lg font-bold text-sage-text border-b-2 border-rose-500 pb-1 inline-block mb-4">Eliminar Pago</h3>
+            <p class="text-xs text-sage-subtext mb-4">Invoca: <code class="font-mono bg-sage-bg px-1 rounded">eliminar(id)</code></p>
+
+            <div class="p-6 bg-[#FFF1F1] border border-[#FAD2D2] rounded-xl flex flex-col sm:flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-bold text-[#C84B4B] mb-1">Precaución: Acción destructiva</h4>
+                <p class="text-xs text-rose-700/80 mb-3">Elimina el registro de pago. Solo se permiten eliminar pagos en estatus 'Pendiente' o 'Rechazado'.</p>
+                <div class="flex gap-2 max-w-sm">
+                  <select id="select-delete-id" class="flex-1 bg-white border border-rose-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-rose-400 font-mono text-rose-900">
+                    <option value="">-- Seleccionar ID --</option>
+                  </select>
+                  <button onclick="handleDelete()" class="px-4 py-2 bg-[#C84B4B] hover:bg-rose-700 text-white font-bold text-sm rounded-md shadow-sm transition">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden transform transition-all duration-300 ease-out translate-y-4 opacity-0 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white">
+    <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-400"></i>
+    <span id="toast-msg" class="text-sm font-medium"></span>
+  </div>
+
+  <script>
+    const today = new Date().toISOString().split('T')[0];
+
+    // DB References
+    const dbRefs = {
+      inscripciones: [
+        "10001 - Luis Pérez (ING-A1)",
+        "10002 - Ana García (FRA-B1)"
+      ],
+      personal: [
+        "501 - Administrador A.",
+        "502 - Cajero B."
+      ],
+      metodos: ["Efectivo", "Transferencia", "Depósito bancario", "Tarjeta"]
+    };
+
+    const MODULE_SCHEMAS = {
+      pagos: {
+        name: "Registro de Pagos", class: "CrudPagos", table: "pagos", icon: "credit-card", primaryKey: "id_pago",
+        fields: [
+          { name: "id_pago", label: "ID Pago", type: "number", required: true, isKey: true },
+          { name: "id_inscripcion", label: "Inscripción", type: "select", options: dbRefs.inscripciones, required: true },
+          { name: "monto", label: "Monto Depositado ($)", type: "number", step: "0.01", min: 0.01, required: true },
+          { name: "fecha_pago", label: "Fecha de Pago", type: "date", required: true, maxDate: today },
+          { name: "metodo_pago", label: "Método de Pago", type: "select", options: dbRefs.metodos, required: true },
+          { name: "folio_comprobante", label: "Folio de Comprobante", type: "text", required: true },
+          { name: "ruta_comprobante", label: "Ruta/Archivo PDF", type: "text", required: true, placeholder: "/docs/pagos/..." }
+        ]
+      },
+      validacion: {
+        name: "Validación de Pagos", class: "CrudValidacionPagos", table: "pagos", icon: "check-square", primaryKey: "id_pago"
+      }
+    };
+
+    // Initial Mock DB
+    let db = {
+      pagos: [
+        { id_pago: 1, id_inscripcion: "10001 - Luis Pérez (ING-A1)", monto: 1500.00, fecha_pago: "2026-10-15", metodo_pago: "Transferencia", folio_comprobante: "TRX-998877", ruta_comprobante: "/docs/pago1.pdf", estatus_validacion: "Pendiente", id_personal: null, fecha_validacion: null, observaciones: null },
+        { id_pago: 2, id_inscripcion: "10002 - Ana García (FRA-B1)", monto: 1800.00, fecha_pago: "2026-10-16", metodo_pago: "Efectivo", folio_comprobante: "CASH-1234", ruta_comprobante: "/docs/pago2.pdf", estatus_validacion: "Validado", id_personal: "501 - Administrador A.", fecha_validacion: "2026-10-16", observaciones: "" }
+      ]
+    };
+
+    let currentModule = null;
+
+    function updateBadges() {
+      const totalPagos = db.pagos.length;
+      const pendientes = db.pagos.filter(p => p.estatus_validacion === 'Pendiente').length;
+
+      const bPagos = document.getElementById('badge-pagos');
+      if (bPagos) bPagos.innerText = totalPagos;
+
+      const bVal = document.getElementById('badge-validacion');
+      if (bVal) {
+        bVal.innerText = `${pendientes} Pendientes`;
+        if(pendientes > 0) bVal.classList.replace('bg-sage-bg', 'bg-amber-100');
+        else bVal.classList.replace('bg-amber-100', 'bg-sage-bg');
+      }
+    }
+
+    function showHoneycombView() {
+      document.getElementById('view-honeycomb').classList.remove('hidden');
+      document.getElementById('view-crud').classList.add('hidden');
+      document.getElementById('btn-back-home').classList.add('hidden');
+      currentModule = null;
+      updateBadges();
+      lucide.createIcons();
+    }
+
+    function buildNavigation() {
+      const nav = document.getElementById('nav-operations');
+      let html = '';
+      if (currentModule === 'pagos') {
+        html += `
+          <button onclick="setOperation('crear')" id="btn-op-crear" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> 1. Registrar Pago
+          </button>
+          <button onclick="setOperation('consultar')" id="btn-op-consultar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="search" class="w-4 h-4"></i> 2. Consultar Pagos
+          </button>
+          <button onclick="setOperation('actualizar')" id="btn-op-actualizar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="edit-3" class="w-4 h-4"></i> 3. Editar Pago
+          </button>
+          <button onclick="setOperation('eliminar')" id="btn-op-eliminar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> 4. Eliminar Pago
+          </button>
+        `;
+      } else {
+        html += `
+          <button onclick="setOperation('consultar')" id="btn-op-consultar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="inbox" class="w-4 h-4"></i> 1. Bandeja de Pendientes
+          </button>
+          <button onclick="setOperation('actualizar')" id="btn-op-actualizar" class="crud-menu-btn text-left px-3 py-2.5 rounded-lg text-sm text-sage-subtext hover:bg-sage-light hover:text-sage-text flex items-center gap-2.5">
+            <i data-lucide="check-square" class="w-4 h-4"></i> 2. Validar / Rechazar
+          </button>
+        `;
+      }
+      nav.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function selectModule(moduleKey) {
+      currentModule = moduleKey;
+      const schema = MODULE_SCHEMAS[moduleKey];
+
+      document.getElementById('module-title').innerText = schema.name;
+      document.getElementById('module-subtitle').innerText = `Tabla: ${schema.table}`;
+      document.getElementById('module-icon').setAttribute('data-lucide', schema.icon);
+
+      document.getElementById('view-honeycomb').classList.add('hidden');
+      document.getElementById('view-crud').classList.remove('hidden');
+      document.getElementById('btn-back-home').classList.remove('hidden');
+
+      buildNavigation();
+      setOperation('consultar');
+      lucide.createIcons();
+    }
+
+    function setConsoleCommand(cmd) {
+      document.getElementById('python-console-cmd').innerText = cmd;
+    }
+
+    function setOperation(op) {
+      ['crear', 'consultar', 'actualizar', 'eliminar'].forEach(o => {
+        const btn = document.getElementById(`btn-op-${o}`);
+        if(btn) btn.classList.remove('active');
+        const panel = document.getElementById(`panel-${o}`);
+        if(panel) panel.classList.add('hidden');
+      });
+
+      const activeBtn = document.getElementById(`btn-op-${op}`);
+      if(activeBtn) activeBtn.classList.add('active');
+      document.getElementById(`panel-${op}`).classList.remove('hidden');
+
+      const schema = MODULE_SCHEMAS[currentModule];
+
+      if (op === 'crear') {
+        setConsoleCommand(`${schema.class}.crear(**datos)`);
+        buildCreateForm();
+      } else if (op === 'consultar') {
+        if(currentModule === 'validacion') setConsoleCommand(`${schema.class}.consultar_pendientes()`);
+        else setConsoleCommand(`${schema.class}.consultar_todos()`);
+
+        document.getElementById('title-consultar').innerText = currentModule === 'validacion' ? "Bandeja de Pagos Pendientes" : "Listado de Pagos";
+        document.getElementById('table-search').value = '';
+        renderTable();
+      } else if (op === 'actualizar') {
+        setConsoleCommand(`${schema.class}.${currentModule === 'validacion' ? 'validar_pago(id, estatus, ...)' : 'actualizar(id, **datos)'}`);
+        document.getElementById('title-actualizar').innerText = currentModule === 'validacion' ? "Procesar Validación de Pago" : "Editar Registro de Pago";
+        populateIdSelectors('select-update-id');
+        document.getElementById('update-workspace').classList.add('hidden');
+        document.getElementById('select-update-id').value = '';
+
+        if (currentModule === 'validacion') {
+            document.getElementById('form-update-completo').classList.add('hidden');
+            document.getElementById('form-validacion').classList.remove('hidden');
+
+            // Populate Personal
+            document.getElementById('val-personal').innerHTML = `<option value="">-- Seleccionar Validador --</option>` + dbRefs.personal.map(p => `<option value="${p}">${p}</option>`).join('');
+        } else {
+            document.getElementById('form-update-completo').classList.remove('hidden');
+            document.getElementById('form-validacion').classList.add('hidden');
+        }
+
+      } else if (op === 'eliminar') {
+        setConsoleCommand(`${schema.class}.eliminar(id)`);
+        populateIdSelectors('select-delete-id');
+      }
+    }
+
+    // CREATE (Only for pagos)
+    function buildCreateForm() {
+      const schema = MODULE_SCHEMAS['pagos'];
+      const container = document.getElementById('fields-crear');
+      let html = '';
+      schema.fields.forEach(f => {
+        html += `<div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label} <span class="text-rose-500">*</span></label>`;
+
+        if (f.type === 'select') {
+          html += `<select name="${f.name}" required class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent">
+            <option value="">-- Seleccionar --</option>
+            ${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>`;
+        } else {
+          let extraAttr = '';
+          if(f.min !== undefined) extraAttr += ` min="${f.min}"`;
+          if(f.step) extraAttr += ` step="${f.step}"`;
+          if(f.maxDate) extraAttr += ` max="${f.maxDate}"`;
+          if(f.placeholder) extraAttr += ` placeholder="${f.placeholder}"`;
+
+          html += `<input type="${f.type}" name="${f.name}" required ${extraAttr} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sage-accent placeholder-slate-300">`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function handleCreate(e) {
+      e.preventDefault();
+      const schema = MODULE_SCHEMAS['pagos'];
+      const formData = new FormData(e.target);
+      const newRec = {};
+      schema.fields.forEach(f => {
+        let val = formData.get(f.name);
+        if(f.type === 'number') val = Number(val);
+        newRec[f.name] = val;
+      });
+
+      const pk = schema.primaryKey;
+      if (db.pagos.some(r => r[pk] === newRec[pk])) {
+        showToast(`El ID ${newRec[pk]} ya existe`, 'error');
+        return;
+      }
+
+      if (db.pagos.some(r => r.folio_comprobante === newRec.folio_comprobante)) {
+        showToast(`El Folio de comprobante ya está registrado.`, 'error');
+        return;
+      }
+
+      // Auto fields
+      newRec.estatus_validacion = 'Pendiente';
+      newRec.id_personal = null;
+      newRec.fecha_validacion = null;
+      newRec.observaciones = null;
+
+      db.pagos.push(newRec);
+      showToast(`Pago registrado y enviado a bandeja de validación.`);
+      e.target.reset();
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    // READ
+    function renderTable() {
+      let data = db.pagos;
+      if (currentModule === 'validacion') {
+        data = data.filter(p => p.estatus_validacion === 'Pendiente');
+      }
+
+      const search = (document.getElementById('table-search').value || '').toLowerCase();
+
+      let head = '<tr>';
+      ['ID', 'Inscripción', 'Monto', 'Fecha', 'Comprobante', 'Estatus'].forEach(lbl => {
+        head += `<th class="px-3 py-2 whitespace-nowrap">${lbl}</th>`;
+      });
+      head += '</tr>';
+      document.getElementById('table-head').innerHTML = head;
+
+      const filtered = data.filter(r => {
+        return Object.values(r).some(v => String(v).toLowerCase().includes(search));
+      });
+
+      document.getElementById('table-count').innerText = `${filtered.length} regs`;
+
+      if (filtered.length === 0) {
+        document.getElementById('table-body').innerHTML = `<tr><td colspan="6" class="px-3 py-6 text-center text-xs text-sage-subtext">No se encontraron pagos.</td></tr>`;
+        return;
+      }
+
+      let body = '';
+      filtered.forEach(item => {
+        body += `<tr class="hover:bg-sage-bg/50 transition">`;
+        body += `<td class="px-3 py-2 font-mono font-bold text-sage-accent">#${item.id_pago}</td>`;
+        body += `<td class="px-3 py-2 text-xs truncate max-w-[150px]">${item.id_inscripcion}</td>`;
+        body += `<td class="px-3 py-2 font-mono font-semibold text-sage-text">$${item.monto.toFixed(2)}</td>`;
+        body += `<td class="px-3 py-2 text-xs">${item.fecha_pago}</td>`;
+        body += `<td class="px-3 py-2 font-mono text-xs text-sage-subtext">${item.folio_comprobante}</td>`;
+
+        let color = item.estatus_validacion === 'Validado' ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                  : item.estatus_validacion === 'Pendiente' ? 'bg-amber-100 text-amber-800 border-amber-200'
+                  : 'bg-rose-100 text-rose-800 border-rose-200';
+        body += `<td class="px-3 py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${color} border">${item.estatus_validacion}</span></td>`;
+        body += `</tr>`;
+      });
+      document.getElementById('table-body').innerHTML = body;
+    }
+
+    // UPDATE & VALIDATE
+    function populateIdSelectors(elemId) {
+      const sel = document.getElementById(elemId);
+      let data = db.pagos;
+      if (currentModule === 'validacion' && elemId === 'select-update-id') {
+          data = data.filter(p => p.estatus_validacion === 'Pendiente');
+      }
+
+      let html = `<option value="">-- Seleccionar Pago --</option>`;
+      data.forEach(r => {
+        html += `<option value="${r.id_pago}">#${r.id_pago} - ${r.folio_comprobante} ($${r.monto})</option>`;
+      });
+      sel.innerHTML = html;
+    }
+
+    function loadUpdateData() {
+      const id = document.getElementById('select-update-id').value;
+      const ws = document.getElementById('update-workspace');
+      if (!id) { ws.classList.add('hidden'); return; }
+
+      ws.classList.remove('hidden');
+      const record = db.pagos.find(r => r.id_pago == id);
+
+      if (currentModule === 'pagos') {
+        const container = document.getElementById('fields-actualizar');
+        let html = '';
+        const schema = MODULE_SCHEMAS['pagos'];
+
+        const isEditable = record.estatus_validacion === 'Pendiente';
+        const btnSub = document.getElementById('btn-submit-update');
+        if(!isEditable) btnSub.classList.add('hidden');
+        else btnSub.classList.remove('hidden');
+
+        schema.fields.forEach(f => {
+          const v = record[f.name] || '';
+          html += `<div class="flex flex-col gap-1">
+            <label class="text-[11px] font-bold text-sage-subtext uppercase">${f.label}</label>`;
+
+          if (f.type === 'select') {
+            html += `<select name="${f.name}" ${!isEditable ? 'disabled' : ''} class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent">
+              ${f.options.map(o => `<option value="${o}" ${o==v?'selected':''}>${o}</option>`).join('')}
+            </select>`;
+          } else {
+            let extraAttr = '';
+            if(f.min !== undefined) extraAttr += ` min="${f.min}"`;
+            if(f.step) extraAttr += ` step="${f.step}"`;
+            let ro = f.isKey || !isEditable ? 'readonly class="bg-sage-bg opacity-70 border border-sage-border rounded-md px-3 py-1.5 text-sm"' : 'class="bg-white border border-sage-border rounded-md px-3 py-1.5 text-sm focus:border-sage-accent"';
+
+            html += `<input type="${f.type}" ${extraAttr} name="${f.name}" value="${v}" ${ro}>`;
+          }
+          html += `</div>`;
+        });
+        container.innerHTML = html;
+      } else {
+        // Validación Mode
+        const detBox = document.getElementById('val-pago-details');
+        detBox.innerHTML = `
+            <div><span class="text-slate-400">ID Pago:</span> <span class="text-slate-800">#${record.id_pago}</span></div>
+            <div><span class="text-slate-400">Inscripción:</span> <span class="text-slate-800">${record.id_inscripcion}</span></div>
+            <div><span class="text-slate-400">Monto:</span> <span class="text-slate-800">$${record.monto.toFixed(2)}</span></div>
+            <div><span class="text-slate-400">Fecha Pago:</span> <span class="text-slate-800" id="val-fecha-pago">${record.fecha_pago}</span></div>
+            <div><span class="text-slate-400">Método:</span> <span class="text-slate-800">${record.metodo_pago}</span></div>
+            <div><span class="text-slate-400">Folio:</span> <span class="text-slate-800">${record.folio_comprobante}</span></div>
+        `;
+        document.getElementById('val-decision').value = '';
+        document.getElementById('val-fecha').value = today;
+        document.getElementById('val-obs').value = '';
+        toggleRechazo();
+      }
+    }
+
+    function toggleRechazo() {
+        const dec = document.getElementById('val-decision').value;
+        const boxObs = document.getElementById('box-observaciones');
+        const inObs = document.getElementById('val-obs');
+        if (dec === 'Rechazado') {
+            boxObs.classList.remove('hidden');
+            inObs.setAttribute('required', 'true');
+        } else {
+            boxObs.classList.add('hidden');
+            inObs.removeAttribute('required');
+        }
+    }
+
+    function handleUpdate(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('select-update-id').value);
+      const schema = MODULE_SCHEMAS['pagos'];
+      const formData = new FormData(e.target);
+      const index = db.pagos.findIndex(r => r.id_pago === id);
+
+      if(db.pagos[index].estatus_validacion !== 'Pendiente') return; // Double check
+
+      schema.fields.forEach(f => {
+        let val = formData.get(f.name);
+        if(f.type === 'number') val = Number(val);
+        db.pagos[index][f.name] = val;
+      });
+
+      showToast(`Pago #${id} actualizado`);
+      setOperation('consultar');
+    }
+
+    function handleValidation(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('select-update-id').value);
+      const index = db.pagos.findIndex(r => r.id_pago === id);
+
+      const record = db.pagos[index];
+      const formData = new FormData(e.target);
+
+      const estatus = formData.get('estatus_validacion');
+      const personal = formData.get('id_personal');
+      const fechaVal = formData.get('fecha_validacion');
+      const obs = formData.get('observaciones');
+
+      // Regla de Negocio: fecha_validacion >= fecha_pago
+      if (fechaVal < record.fecha_pago) {
+          showToast(`La fecha de validación (${fechaVal}) no puede ser menor a la fecha de pago (${record.fecha_pago}).`, 'error');
+          return;
+      }
+
+      record.estatus_validacion = estatus;
+      record.id_personal = personal;
+      record.fecha_validacion = fechaVal;
+      record.observaciones = estatus === 'Rechazado' ? obs : "";
+
+      if(estatus === 'Validado') {
+          showToast(`Pago Validado. La inscripción ha cambiado a 'Confirmada'.`, 'success');
+      } else {
+          showToast(`Pago Rechazado. Se han guardado las observaciones.`, 'error');
+      }
+
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    // DELETE
+    function handleDelete() {
+      const id = Number(document.getElementById('select-delete-id').value);
+      if(!id) return;
+      const record = db.pagos.find(p => p.id_pago === id);
+
+      if(record.estatus_validacion === 'Validado') {
+          showToast("No se puede eliminar un pago que ya ha sido validado y conciliado.", "error");
+          return;
+      }
+
+      db.pagos = db.pagos.filter(r => r.id_pago !== id);
+      showToast(`Pago #${id} eliminado`, 'error');
+      updateBadges();
+      setOperation('consultar');
+    }
+
+    let tOut;
+    function showToast(msg, type='success') {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+
+      if(type==='success'){
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-sage-text border-sage-hover text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'check-circle');
+        document.getElementById('toast-icon').classList.replace('text-rose-400', 'text-emerald-400');
+      } else {
+        el.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg bg-rose-900 border-rose-800 text-white transform transition-all duration-300 ease-out translate-y-0 opacity-100";
+        document.getElementById('toast-icon').setAttribute('data-lucide', 'alert-circle');
+        document.getElementById('toast-icon').classList.replace('text-emerald-400', 'text-rose-400');
+      }
+      lucide.createIcons();
+      clearTimeout(tOut);
+      tOut = setTimeout(()=> {
+        el.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(()=> el.classList.add('hidden'), 300);
+      }, 4000);
+    }
+
+    async function loadRefsFromBackend() {
+      try {
+        const resPer = await fetch('/api/personal/').then(r => r.json());
+        if (resPer && resPer.estado && Array.isArray(resPer.registros)) {
+          dbRefs.personal = resPer.registros.map(p => `${p.id_personal} - ${p.nombres} ${p.apellido_paterno}`);
+        }
+      } catch (err) {
+        console.error('Error cargando personal desde BD:', err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadRefsFromBackend();
+      updateBadges();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

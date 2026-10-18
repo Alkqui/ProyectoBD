@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro de Idiomas - Menú Principal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              bg: '#F6F7F4',
+              card: '#FFFFFF',
+              text: '#222B25',
+              subtext: '#667068',
+              border: '#DDE2DB',
+              accent: '#4F6F52',
+              hover: '#3A5A40',
+              light: '#E8EBE7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F6F7F4; color: #222B25; }
+    .clip-hex { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+    .honeycomb-wrapper { display: flex; flex-direction: column; align-items: center; gap: -14px; }
+    .honeycomb-row { display: flex; justify-content: center; gap: 16px; margin-bottom: -32px; }
+    @media (max-width: 768px) { .honeycomb-row { margin-bottom: -18px; gap: 8px; flex-wrap: wrap; } }
+    .hex-btn { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: block; }
+    .hex-btn:hover { transform: translateY(-8px) scale(1.04); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F6F7F4; }
+    ::-webkit-scrollbar-thumb { background: #DDE2DB; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4F6F52; }
+
+    .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans selection:bg-sage-accent selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-sage-border bg-sage-card sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-sage-accent flex items-center justify-center text-white shadow-md">
+          <i data-lucide="languages" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-sage-text flex items-center gap-1.5">
+            Centro de Idiomas
+          </span>
+          <p class="text-[10px] text-sage-subtext uppercase tracking-wider font-bold">Sistema de Gestión Académica</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sage-light border border-sage-border text-sage-text">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Conectado
+        </span>
+        <button onclick="logout()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Salir
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col justify-center relative fade-in">
+
+    <!-- MENÚ PRINCIPAL -->
+    <section class="flex flex-col items-center">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-sage-text tracking-tight mb-3">
+          Panel de Control Principal
+        </h1>
+        <p class="text-sm text-sage-subtext">
+          Selecciona el módulo al que deseas ingresar.
+        </p>
+      </div>
+
+      <!-- Retícula Honeycomb para 7 Módulos -->
+      <div class="honeycomb-wrapper">
+
+        <!-- Fila 1: 3 elementos -->
+        <div class="honeycomb-row">
+
+          <!-- Catálogos -->
+          <a href="/catalogos.html" class="hex-btn group">
+            <div class="w-36 h-40 sm:w-44 sm:h-48 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="folder-tree" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text leading-tight">Catálogos</h3>
+                <span class="mt-2 text-[9px] px-2 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-subtext font-semibold uppercase tracking-wider group-hover:text-sage-accent group-hover:border-sage-accent transition">Ingresar</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Aspirantes y Ubicación -->
+          <a href="/Gestion_de_grupos.html" class="hex-btn group">
+            <div class="w-36 h-40 sm:w-44 sm:h-48 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text leading-tight">Aspirantes y Ubicación</h3>
+                <span class="mt-2 text-[9px] px-2 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-subtext font-semibold uppercase tracking-wider group-hover:text-sage-accent group-hover:border-sage-accent transition">Ingresar</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Programación de Grupos -->
+          <a href="/Programacion_De_Grupos.html" class="hex-btn group">
+            <div class="w-36 h-40 sm:w-44 sm:h-48 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text leading-tight">Programación de Grupos</h3>
+                <span class="mt-2 text-[9px] px-2 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-subtext font-semibold uppercase tracking-wider group-hover:text-sage-accent group-hover:border-sage-accent transition">Ingresar</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+
+        <!-- Fila 2: 4 elementos -->
+        <div class="honeycomb-row">
+
+          <!-- Inscripciones -->
+          <a href="/Inscripciones.html" class="hex-btn group">
+            <div class="w-36 h-40 sm:w-44 sm:h-48 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="user-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text leading-tight">Inscripciones</h3>
+                <span class="mt-2 text-[9px] px-2 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-subtext font-semibold uppercase tracking-wider group-hover:text-sage-accent group-hover:border-sage-accent transition">Ingresar</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Pagos y Caja -->
+          <a href="/Pagos_y_Caja.html" class="hex-btn group">
+            <div class="w-36 h-40 sm:w-44 sm:h-48 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="credit-card" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text leading-tight">Pagos y Caja</h3>
+                <span class="mt-2 text-[9px] px-2 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-subtext font-semibold uppercase tracking-wider group-hover:text-sage-accent group-hover:border-sage-accent transition">Ingresar</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Evaluación y Kárdex -->
+          <a href="/Evaluacion_y_kardex.html" class="hex-btn group">
+            <div class="w-36 h-40 sm:w-44 sm:h-48 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text leading-tight">Evaluación y Kárdex</h3>
+                <span class="mt-2 text-[9px] px-2 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-subtext font-semibold uppercase tracking-wider group-hover:text-sage-accent group-hover:border-sage-accent transition">Ingresar</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Seguridad y Usuarios -->
+          <a href="/Seguridad_y_Usuarios.html" class="hex-btn group">
+            <div class="w-36 h-40 sm:w-44 sm:h-48 bg-sage-border p-[1px] clip-hex shadow-sm group-hover:bg-sage-accent transition-colors">
+              <div class="w-full h-full bg-sage-card clip-hex flex flex-col items-center justify-center p-3 text-center transition group-hover:bg-sage-light">
+                <div class="w-12 h-12 rounded-full bg-sage-light border border-sage-border flex items-center justify-center text-sage-accent mb-3 group-hover:scale-110 group-hover:bg-sage-accent group-hover:text-white transition">
+                  <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-sage-text leading-tight">Seguridad y Usuarios</h3>
+                <span class="mt-2 text-[9px] px-2 py-0.5 rounded-full bg-sage-bg border border-sage-border text-sage-subtext font-semibold uppercase tracking-wider group-hover:text-sage-accent group-hover:border-sage-accent transition">Ingresar</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="mt-auto py-6 text-center text-xs text-sage-subtext font-medium border-t border-sage-border bg-sage-bg">
+    &copy; 2026 Centro de Idiomas. Todos los derechos reservados.
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    function logout() {
+      window.location.href = '/login.html';
+    }
+  </script>
+</body>
+</html>
